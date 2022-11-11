@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+         Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel pgmodeler-ver="0.9.1" last-position="0,70" last-zoom="0.8"
+	 default-schema="public" default-owner="postgres">
+<database name="new_database" is-template="false" allow-conns="true">
+</database>
+
+<schema name="public" fill-color="#e1e1e1" sql-disabled="true">
+</schema>
+
+<schema name="ims" rect-visible="true" fill-color="#e1e1e1">
+	<role name="postgres"/>
+</schema>
+
+<table name="incident">
+	<schema name="ims"/>
+	<role name="postgres"/>
+	<appended-sql><![CDATA[INSERT INTO ims.incident (incident_name,incident_description,incident_created_at,incident_updated_at,incident_priority,reporter_id,resolver_id,incident_status) 
+VALUES ("Infected door camera","The front door camera of building C is infected with malicious code and is used for scanning the network.","2022-11-08T10:32:54+00:00","2022-11-08T10:32:54+00:00",
+1,1,1,1);]]></appended-sql>
+	<position x="420" y="280"/>
+	<column name="incident_id" not-null="true" identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="incident_name" not-null="true">
+		<type name="varchar" length="100"/>
+	</column>
+	<column name="incident_description">
+		<type name="text" length="15000"/>
+	</column>
+	<column name="incident_created_at" not-null="true" default-value="NOW()::timestamptz">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="incident_updated_at" not-null="true" default-value="NOW()::timestamptz">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="incident_priority" not-null="true" default-value="0">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="incident_status" not-null="true" default-value="0">
+		<type name="smallint" length="0"/>
+	</column>
+	<constraint name="incident_pk" type="pk-constr" table="ims.incident">
+		<columns names="incident_id" ref-type="src-columns"/>
+	</constraint>
+
+	<customidxs object-type="column">
+		<object name="reporter_id" index="6"/>
+		<object name="resolver_id" index="7"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="user_fk" index="1"/>
+		<object name="user_fk1" index="2"/>
+	</customidxs>
+</table>
+
+<table name="user">
+	<schema name="ims"/>
+	<role name="postgres"/>
+	<position x="1000" y="540"/>
+	<column name="user_id" not-null="true" identity-type="ALWAYS">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="user_role">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="user_email" not-null="true">
+		<type name="varchar" length="320"/>
+	</column>
+	<constraint name="user_pk" type="pk-constr" table="ims.&quot;user&quot;">
+		<columns names="user_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="comment">
+	<schema name="ims"/>
+	<role name="postgres"/>
+	<position x="420" y="680"/>
+	<column name="comment_id" not-null="true" identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="comment_created_at" not-null="true" default-value="NOW()::timestamptz">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="comment_updated_at" not-null="true" default-value="NOW()::timestamptz">
+		<type name="timestamptz" length="0"/>
+	</column>
+	<column name="comment_text">
+		<type name="text" length="1000"/>
+	</column>
+	<constraint name="comment_pk" type="pk-constr" table="ims.comment">
+		<columns names="comment_id" ref-type="src-columns"/>
+	</constraint>
+
+	<customidxs object-type="column">
+		<object name="author_id" index="5"/>
+		<object name="incident_id" index="4"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="incident_fk" index="1"/>
+		<object name="user_fk" index="2"/>
+	</customidxs>
+</table>
+
+<table name="attachment">
+	<schema name="ims"/>
+	<role name="postgres"/>
+	<position x="980" y="760"/>
+	<column name="attachment_id" not-null="true" identity-type="ALWAYS">
+		<type name="bigint" length="0"/>
+	</column>
+	<column name="attachment_path" not-null="true">
+		<type name="varchar" length="4096"/>
+	</column>
+	<constraint name="attachment_pk" type="pk-constr" table="ims.attachment">
+		<columns names="attachment_id" ref-type="src-columns"/>
+	</constraint>
+
+	<customidxs object-type="column">
+		<object name="comment_id" index="2"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="comment_fk" index="1"/>
+	</customidxs>
+</table>
+
+<table name="event_incident">
+	<schema name="ims"/>
+	<role name="postgres"/>
+	<appended-sql><![CDATA[INSERT INTO ims.event_incident (event_id,incident_id) VALUES (376255,6);]]></appended-sql>
+	<position x="940" y="260"/>
+	<column name="event_id" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<constraint name="event_incident_pk" type="pk-constr" table="ims.event_incident">
+		<columns names="event_id" ref-type="src-columns"/>
+	</constraint>
+
+	<customidxs object-type="column">
+		<object name="incident_id" index="1"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="incident_fk" index="1"/>
+	</customidxs>
+</table>
+
+<relationship name="comment_has_many_attachments" type="rel1n"
+	 src-col-pattern="{sc}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#8e968d"
+	 src-table="ims.comment"
+	 dst-table="ims.attachment"
+	 src-required="true" dst-required="false"/>
+
+<relationship name="incident_has_many_comments" type="rel1n"
+	 src-col-pattern="{sc}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#ffcc29"
+	 src-table="ims.incident"
+	 dst-table="ims.comment"
+	 src-required="true" dst-required="false"/>
+
+<relationship name="incident_has_many_event_incident" type="rel1n"
+	 src-col-pattern="{sc}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#e1567f"
+	 src-table="ims.incident"
+	 dst-table="ims.event_incident"
+	 src-required="true" dst-required="false"
+	 identifier="true"
+/>
+
+<relationship name="user_reports_incidents" type="rel1n"
+	 src-col-pattern="reporter_id"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#ee3d73"
+	 src-table="ims.&quot;user&quot;"
+	 dst-table="ims.incident"
+	 src-required="true" dst-required="false"/>
+
+<relationship name="user_resolves_incidents" type="rel1n"
+	 src-col-pattern="resolver_id"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#44984a"
+	 src-table="ims.&quot;user&quot;"
+	 dst-table="ims.incident"
+	 src-required="true" dst-required="false">
+	<label ref-type="name-label">
+		<position x="-0.71501" y="32.2393"/>
+	</label>
+</relationship>
+
+<relationship name="user_writes_comments" type="rel1n"
+	 src-col-pattern="author_id"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#3bf142"
+	 src-table="ims.&quot;user&quot;"
+	 dst-table="ims.comment"
+	 src-required="false" dst-required="false"/>
+
+</dbmodel>
