@@ -1,1 +1,3 @@
 code/venv
+code/__pycache__
+.idea
