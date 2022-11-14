@@ -13,3 +13,6 @@ This is proof-of-concept for incident management system created for Flowmon Coll
 -2 low\
 0 middle\
 2 high
+
+## How to run tests
+python -m pytest src/test/end_to_end.py

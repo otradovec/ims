@@ -1,9 +1,15 @@
 from typing import Union
-from fastapi import Cookie, FastAPI
 
-from middle.Incident import Incident, incident_list
-from middle.UserRole import UserRole
-from middle.IncidentStatus import IncidentStatus
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
+
+from src.models import models
+from src.database import crud
+from src.schemas import schemas
+from src.database.database import SessionLocal, engine
+
+models.Base.metadata.drop_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 base_url = "/ims/rest/"
@@ -13,18 +19,48 @@ users_tag = "Users"
 incident_tag = "Incidents"
 
 
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+"""
+@app.post("/users/{user_id}/items/", response_model=schemas.Item)
+def create_item_for_user(
+    user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
+):
+    return crud.create_user_item(db=db, item=item, user_id=user_id)
+
+
+@app.get("/items/", response_model=list[schemas.Item])
+def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    items = crud.get_items(db, skip=skip, limit=limit)
+    return items
+
+
+
+
 @app.get(base_url + "incidents", tags=[incident_tag])
-async def incidents_list(reported_id: Union[int, None] = None, resolver_id: Union[int, None] = None, incident_status: Union[IncidentStatus, None] = None, incident_priority: Union[int, None] = None, is_opened: Union[bool, None] = None, incident_search: Union[str, None] = None):
+async def incidents_list(reported_id: Union[int, None] = None, resolver_id: Union[int, None] = None,
+                         incident_status: Union[IncidentStatus, None] = None,
+                         incident_priority: Union[int, None] = None, is_opened: Union[bool, None] = None,
+                         incident_search: Union[str, None] = None):
     return incident_list(reported_id, resolver_id, incident_status, incident_priority, is_opened, incident_search)
 
 
 @app.post(base_url + "incidents", tags=[incident_tag])
-async def incident_create(reported_id: int, resolver_id: int, incident_status: IncidentStatus, incident_name: str, incident_description: str, incident_priority: int):
+async def incident_create(reported_id: int, resolver_id: int, incident_status: IncidentStatus, incident_name: str,
+                          incident_description: str, incident_priority: int):
     return {"message": reported_id}
 
 
 @app.put(base_url + "incidents", tags=[incident_tag])
-async def incident_update(incident_id: int, resolver_id: int, incident_status: IncidentStatus, incident_name: str, incident_description: str, incident_priority: int):
+async def incident_update(incident_id: int, resolver_id: int, incident_status: IncidentStatus, incident_name: str,
+                          incident_description: str, incident_priority: int):
     return {"message": incident_id}
 
 
@@ -107,23 +143,34 @@ async def attachment_view(attachment_id: int):
 async def attachment_delete(attachment_id: int):
     return {"The ": attachment_id}
 
+"""
+
 
 # Users
-@app.get(base_url + "users", tags=[users_tag])
-async def users_list(user_search: Union[str, None] = None):
-    return {"The ": user_search}
+@app.get(base_url + "users", tags=[users_tag], response_model=list[schemas.User])
+async def users_list(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user_search: Union[str, None] = None):
+    users = crud.get_users(db, skip=skip, limit=limit, user_search=user_search)
+    return users
 
 
-@app.post(base_url + "users", tags=[users_tag])
-async def user_create(email: str, user_role: UserRole, password: str):
-    return {"The ": email}
+@app.post(base_url + "users", tags=[users_tag], response_model=schemas.User)
+async def user_create(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    if user.user_role is None:
+        raise HTTPException(status_code=422, detail="Role cannot be empty.")
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return crud.create_user(db=db, user=user)
 
 
-@app.get(base_url + "users/{user_id}", tags=[users_tag])
-async def user_view(user_id: int):
-    return {"The ": user_id}
+@app.get(base_url + "users/{user_id}", tags=[users_tag], response_model=schemas.User)
+async def user_view(user_id: int, db: Session = Depends(get_db)):
+    db_user = crud.get_user(db, user_id=user_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
 
-
+"""
 @app.put(base_url + "users/{user_id}", tags=[users_tag])
 async def user_update(user_id: int, email: str, user_role: UserRole, password: str):
     return {"The ": user_id}
@@ -137,3 +184,4 @@ async def user_delete(user_id: int):
 @app.post(base_url + "users/{user_id}/token", tags=[users_tag])
 async def user_token(user_id: int, user_session_cookie: str = Cookie(default=None)):
     return {"The ": user_id}
+"""
