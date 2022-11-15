@@ -170,12 +170,23 @@ async def user_view(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
+
+@app.put(base_url + "users", tags=[users_tag], response_model=schemas.User)
+async def user_update(user_updated: schemas.User, db: Session = Depends(get_db)):
+    user_found = db.query(models.User).filter(models.User.user_id == user_updated.user_id).first()
+    if user_found is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    crud.update_user(user_updated=user_updated, user_found=user_found, db_session=db)
+    return user_updated
+
+
+@app.put(base_url + "users/{user_id}/passwd", tags=[users_tag], response_model=schemas.User)
+async def user_update_passwd(user_id: int, user_passwd: str, db: Session = Depends(get_db)):
+    db_user = crud.user_update_passwd(user_id=user_id, user_passwd=user_passwd, db_session=db)
+    return db_user
+
+
 """
-@app.put(base_url + "users/{user_id}", tags=[users_tag])
-async def user_update(user_id: int, email: str, user_role: UserRole, password: str):
-    return {"The ": user_id}
-
-
 @app.delete(base_url + "users/{user_id}", tags=[users_tag])
 async def user_delete(user_id: int):
     return {"The ": user_id}

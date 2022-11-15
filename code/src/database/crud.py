@@ -28,11 +28,22 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+
+def update_user(user_updated: schemas.User, user_found: schemas.User, db_session: Session):
+    user_id = user_found.user_id
+    result = db_session.query(models.User).filter(models.User.user_id == user_id).update({
+        "user_id": user_found.user_id,
+        "email": user_updated.email,
+        "user_role": user_updated.user_role,
+        "is_active": user_updated.is_active
+    })
+    db_session.commit()
+
+
+def user_update_passwd(user_id, user_passwd, db_session):
+    return None
+
 """
-def get_items(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Item).offset(skip).limit(limit).all()
-
-
 def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
     db_item = models.Item(**item.dict(), owner_id=user_id)
     db.add(db_item)
