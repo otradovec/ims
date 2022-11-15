@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session, load_only
 
+from src.middle import IncidentStatus
 from src.models import models
 from src.schemas import schemas
 
@@ -38,10 +39,23 @@ def update_user(user_updated: schemas.User, user_found: schemas.User, db_session
         "is_active": user_updated.is_active
     })
     db_session.commit()
+    return result
 
 
 def user_update_passwd(user_id, user_passwd, db_session):
-    return None
+    fake_hashed_password = user_passwd + "notreallyhashed"
+    result = db_session.query(models.User).filter(models.User.user_id == user_id).update({
+        "hashed_password": fake_hashed_password,
+    })
+    db_session.commit()
+    return result
+
+
+def user_delete(user_id, db):
+    res = db.query(models.User).filter(models.User.user_id == user_id).delete()
+    db.commit()
+    return res
+
 
 """
 def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
@@ -51,3 +65,28 @@ def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
     db.refresh(db_item)
     return db_item
 """
+
+
+def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_search, skip, limit, db):
+    query = db.query(models.Incident)
+    if incident_id is not None:
+        query = query.filter(models.Incident.incident_id == incident_id)
+
+    if incident_status is not None:
+        status_int = int(incident_status)
+        query = query.filter(models.Incident.incident_status == status_int)
+
+    if reporter_id is not None:
+        query = query.filter(models.Incident.reporter_id == reporter_id)
+
+    if resolver_id is not None:
+        query = query.filter(models.Incident.resolver_id == resolver_id)
+
+    if is_opened is not None:
+        query = query.filter(models.Incident.is_opened == is_opened)
+
+    if incident_search is not None:
+        query = query.filter((models.Incident.incident_name.contains(incident_search)) |
+                             (models.Incident.incident_description.contains(incident_search)))
+    return query.offset(skip).limit(limit).all()
+

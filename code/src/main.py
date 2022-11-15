@@ -1,8 +1,9 @@
-from typing import Union
+from typing import Union, Optional
 
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
+from src.middle.IncidentStatus import IncidentStatus
 from src.models import models
 from src.database import crud
 from src.schemas import schemas
@@ -41,15 +42,16 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     items = crud.get_items(db, skip=skip, limit=limit)
     return items
 
+"""
 
 
-
-@app.get(base_url + "incidents", tags=[incident_tag])
-async def incidents_list(reported_id: Union[int, None] = None, resolver_id: Union[int, None] = None,
-                         incident_status: Union[IncidentStatus, None] = None,
-                         incident_priority: Union[int, None] = None, is_opened: Union[bool, None] = None,
-                         incident_search: Union[str, None] = None):
-    return incident_list(reported_id, resolver_id, incident_status, incident_priority, is_opened, incident_search)
+@app.get(base_url + "incidents", tags=[incident_tag], response_model=list[schemas.User])
+async def incidents_list(incident_id: int = None, incident_status: IncidentStatus = None, reporter_id: int = None,
+                         resolver_id: int = None, is_opened: Optional[bool] = None,
+                         incident_search: Optional[str] = None,
+                         skip: int = 0, limit: int = 20, db: Session = Depends(get_db)
+                         ):
+    return crud.incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_search, skip, limit, db)
 
 
 @app.post(base_url + "incidents", tags=[incident_tag])
@@ -84,6 +86,7 @@ async def incident_states(incident_state_id: int):
     return {incident_state_id: "The state is"}
 
 
+"""
 @app.get(base_url + "connected-events", tags=[connected_events_tag])
 async def connected_events_list(incident_id: Union[int, None] = None, event_id: Union[int, None] = None):
     return {"The ": "The state is"}
@@ -148,7 +151,8 @@ async def attachment_delete(attachment_id: int):
 
 # Users
 @app.get(base_url + "users", tags=[users_tag], response_model=list[schemas.User])
-async def users_list(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), user_search: Union[str, None] = None):
+async def users_list(skip: int = 0, limit: int = 100, db: Session = Depends(get_db),
+                     user_search: Union[str, None] = None):
     users = crud.get_users(db, skip=skip, limit=limit, user_search=user_search)
     return users
 
@@ -180,18 +184,21 @@ async def user_update(user_updated: schemas.User, db: Session = Depends(get_db))
     return user_updated
 
 
-@app.put(base_url + "users/{user_id}/passwd", tags=[users_tag], response_model=schemas.User)
-async def user_update_passwd(user_id: int, user_passwd: str, db: Session = Depends(get_db)):
-    db_user = crud.user_update_passwd(user_id=user_id, user_passwd=user_passwd, db_session=db)
+@app.put(base_url + "users/{user_id}/passwd", tags=[users_tag])
+async def user_update_passwd(user_id: int, hashed_password: str, db: Session = Depends(get_db)):
+    user_found = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if user_found is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    db_user = crud.user_update_passwd(user_id=user_id, user_passwd=hashed_password, db_session=db)
     return db_user
 
 
-"""
 @app.delete(base_url + "users/{user_id}", tags=[users_tag])
-async def user_delete(user_id: int):
-    return {"The ": user_id}
+async def user_delete(user_id: int, db: Session = Depends(get_db)):
+    return crud.user_delete(user_id, db)
 
 
+"""
 @app.post(base_url + "users/{user_id}/token", tags=[users_tag])
 async def user_token(user_id: int, user_session_cookie: str = Cookie(default=None)):
     return {"The ": user_id}

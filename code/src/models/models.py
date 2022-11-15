@@ -3,7 +3,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.types import DateTime
 # from database.database import Base // this line is equal to the two below
 from sqlalchemy.orm import declarative_base
-
+from sqlalchemy.ext.hybrid import hybrid_property
+from src.middle import IncidentStatus
 from src.middle.UserRole import UserRole
 
 Base = declarative_base()
@@ -30,6 +31,10 @@ class Incident(Base):
     incident_updated_at = Column(DateTime(timezone=True), nullable=False)
     reporter_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     resolver_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+
+    @hybrid_property
+    def is_opened(self):
+        return IncidentStatus.is_opened(self.incident_status)
 
 
 class EventIncident(Base):
