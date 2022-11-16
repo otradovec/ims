@@ -46,7 +46,7 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 """
 
 
-@app.get(base_url + "incidents", tags=[incident_tag], response_model=list[schemas.IncidentFull])
+@app.get(base_url + "incidents", tags=[incident_tag])
 async def incidents_list(incident_id: int = None, incident_status: IncidentStatus = None, reporter_id: int = None,
                          resolver_id: int = None, is_opened: Optional[bool] = None, incident_priority: IncidentPriority = None,
                          incident_search: Optional[str] = None,
@@ -68,9 +68,15 @@ async def incident_create(incident: schemas.IncidentBase, db: Session = Depends(
 
 
 @app.put(base_url + "incidents", tags=[incident_tag])
-async def incident_update(incident_id: int, resolver_id: int, incident_status: IncidentStatus, incident_name: str,
-                          incident_description: str, incident_priority: int, db: Session = Depends(get_db)):
-    return {"message": incident_id}
+async def incident_update(incident_updated: schemas.IncidentUpdate, db: Session = Depends(get_db)):
+    incident_found = db.query(models.Incident).filter(models.Incident.incident_id == incident_updated.incident_id).first()
+    if incident_found is None:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    resolver_found = db.query(models.User).filter(models.User.user_id == incident_updated.resolver_id).first()
+    if resolver_found is None:
+        raise HTTPException(status_code=404, detail="Resolver not found")
+    crud.update_incident(incident_updated=incident_updated, incident_found=incident_found, db_session=db)
+    return incident_updated
 
 
 @app.get(base_url + "incidents/{incident_id}", tags=[incident_tag])
@@ -83,7 +89,7 @@ async def incident_detail(incident_id: int, db: Session = Depends(get_db)):
 
 @app.delete(base_url + "incidents/{incident_id}", tags=[incident_tag])
 async def incident_delete(incident_id: int, db: Session = Depends(get_db)):
-    return {"message": incident_id}
+    return crud.incident_delete(incident_id, db)
 
 
 @app.get(base_url + "incident-states", tags=[incident_tag])

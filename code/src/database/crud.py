@@ -96,7 +96,7 @@ def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_ope
     if incident_search is not None:
         query = query.filter((models.Incident.incident_name.contains(incident_search)) |
                              (models.Incident.incident_description.contains(incident_search)))
-    return query.offset(skip).limit(limit).all()
+    return query.offset(skip).limit(limit).all()  # TODO test return of multiple obj
 
 
 def create_incident(db: Session, incident: schemas.IncidentBase):
@@ -116,3 +116,24 @@ def create_incident(db: Session, incident: schemas.IncidentBase):
 
 def get_incident(db: Session, incident_id: int):
     return db.query(models.Incident).filter(models.Incident.incident_id == incident_id).first()
+
+
+def update_incident(incident_updated: schemas.IncidentUpdate, incident_found, db_session):
+    incident_id = incident_found.incident_id
+    result = db_session.query(models.Incident).filter(models.Incident.incident_id == incident_id).update({
+        "incident_name": incident_updated.incident_name,
+        "incident_description": incident_updated.incident_description,
+        "incident_status": int(incident_updated.incident_status),
+        "incident_priority": int(incident_updated.incident_priority),
+        "incident_updated_at": datetime.datetime.now(),
+        "resolver_id": incident_updated.resolver_id
+    })
+    db_session.commit()
+    return result
+
+
+def incident_delete(incident_id: int, db: Session):
+    res = db.query(models.Incident).filter(models.Incident.incident_id == incident_id).delete()
+    db.commit()
+    return res
+

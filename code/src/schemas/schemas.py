@@ -29,6 +29,15 @@ class IncidentFull(IncidentBase):
         orm_mode = True
 
 
+class IncidentUpdate(BaseModel):
+    incident_id: int
+    incident_name: str
+    incident_description: Union[str, None] = None
+    incident_status: IncidentStatus = IncidentStatus.reported
+    incident_priority: IncidentPriority = IncidentPriority.medium
+    resolver_id: int
+    
+
 class UserBase(BaseModel):
     email: str
     user_role: UserRole

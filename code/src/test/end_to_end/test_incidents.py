@@ -1,5 +1,6 @@
 import json
 
+from src.test.end_to_end.helper import Helper
 from src.test.end_to_end.test_main import client, base_url
 
 
@@ -15,7 +16,7 @@ def test_read_incidents_empty_all_params():
 
 
 def test_crud_incident():
-    created_user_id = get_user_id()
+    created_user_id = Helper.get_user_id()
     response = client.get(base_url + "incidents/1")
     assert response.status_code == 404  # Incident not yet created
     json_create = {
@@ -34,13 +35,18 @@ def test_crud_incident():
     assert response.status_code == 200, response.text  # Incident detail
     assert "mining" in response.text
 
-
-def get_user_id() -> int:
-    json_create = {
-        "email": "test@user.com",
-        "user_role": 2,
-        "hashed_password": "secretstring"
+    updated_json = {
+      "incident_id": incident_created_id,
+      "incident_name": "Updated incident name",
+      "incident_description": "Updated incident description",
+      "incident_status": "Confirmed",
+      "incident_priority": "High",
+      "resolver_id": Helper.get_second_user_id()
     }
-    response = client.post(url=base_url + "users", json=json_create)
-    response_json = json.loads(response.text)
-    return response_json["user_id"]
+    response = client.put(url=base_url + "incidents", json=updated_json)
+    assert response.status_code == 200, "Incident updated " + response.text
+
+    response = client.delete(url=base_url + f"incidents/{incident_created_id}")
+    assert response.status_code == 200, "Incident deleted " + response.text
+
+
