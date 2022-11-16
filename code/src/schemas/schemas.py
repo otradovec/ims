@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing import Union, Optional
 
 from pydantic import BaseModel
@@ -11,10 +11,10 @@ from src.middle.IncidentStatus import IncidentStatus
 class IncidentBase(BaseModel):
     incident_name: str
     incident_description: Union[str, None] = None
-    incident_status = IncidentStatus
-    incident_priority = IncidentPriority
-    reporter_id = int
-    resolver_id = int
+    incident_status: IncidentStatus = IncidentStatus.reported
+    incident_priority: IncidentPriority = IncidentPriority.medium
+    reporter_id: int
+    resolver_id: int
 
     class Config:
         arbitrary_types_allowed = True
@@ -22,8 +22,8 @@ class IncidentBase(BaseModel):
 
 class IncidentFull(IncidentBase):
     incident_id: int
-    incident_created_at = datetime
-    incident_updated_at = datetime
+    incident_created_at: datetime
+    incident_updated_at: datetime
 
     class Config:
         orm_mode = True

@@ -7,3 +7,4 @@ fastapi[all]
 sqlalchemy
 httpx
 pytest
+pytest-order

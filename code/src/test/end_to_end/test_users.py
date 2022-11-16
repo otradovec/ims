@@ -1,11 +1,14 @@
+import pytest
 from src.test.end_to_end.test_main import client, base_url
 
 
+@pytest.mark.order("first")
 def test_read_users_empty():
     response = client.get(base_url + "users?skip=0&limit=100")
     assert response.status_code == 200, "Empty user list"
 
 
+@pytest.mark.order("second")
 def test_crud_user():
     response = client.get(base_url+"users/1")
     assert response.status_code == 404  # User not yet created

@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy.orm import Session, load_only
 
 from src.middle import IncidentStatus
@@ -14,7 +16,8 @@ def get_user_by_email(db: Session, email: str):
 
 
 def get_users(db: Session, skip: int = 0, limit: int = 100, user_search: str = None):
-    query = db.query(models.User).offset(skip).limit(limit).options(load_only(models.User.user_id, models.User.email, models.User.is_active, models.User.user_role))
+    query = db.query(models.User).offset(skip).limit(limit).options(
+        load_only(models.User.user_id, models.User.email, models.User.is_active, models.User.user_role))
     if user_search is None:
         return query.all()
     else:
@@ -67,7 +70,8 @@ def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
 """
 
 
-def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority, incident_search, skip, limit, db):
+def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority, incident_search,
+                  skip, limit, db):
     query = db.query(models.Incident)
     if incident_id is not None:
         query = query.filter(models.Incident.incident_id == incident_id)
@@ -94,3 +98,21 @@ def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_ope
                              (models.Incident.incident_description.contains(incident_search)))
     return query.offset(skip).limit(limit).all()
 
+
+def create_incident(db: Session, incident: schemas.IncidentBase):
+    db_incident = models.Incident(incident_name=incident.incident_name,
+                                  incident_description=incident.incident_description,
+                                  incident_status=int(incident.incident_status),
+                                  incident_priority=int(incident.incident_priority),
+                                  incident_created_at=datetime.datetime.now(),
+                                  incident_updated_at=datetime.datetime.now(),
+                                  reporter_id=incident.reporter_id,
+                                  resolver_id=incident.resolver_id)
+    db.add(db_incident)
+    db.commit()
+    db.refresh(db_incident)
+    return db_incident
+
+
+def get_incident(db: Session, incident_id: int):
+    return db.query(models.Incident).filter(models.Incident.incident_id == incident_id).first()

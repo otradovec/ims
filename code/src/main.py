@@ -46,7 +46,7 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 """
 
 
-@app.get(base_url + "incidents", tags=[incident_tag], response_model=list[schemas.User])
+@app.get(base_url + "incidents", tags=[incident_tag], response_model=list[schemas.IncidentFull])
 async def incidents_list(incident_id: int = None, incident_status: IncidentStatus = None, reporter_id: int = None,
                          resolver_id: int = None, is_opened: Optional[bool] = None, incident_priority: IncidentPriority = None,
                          incident_search: Optional[str] = None,
@@ -56,24 +56,33 @@ async def incidents_list(incident_id: int = None, incident_status: IncidentStatu
 
 
 @app.post(base_url + "incidents", tags=[incident_tag])
-async def incident_create(reported_id: int, resolver_id: int, incident_name: str,
-                          incident_description: str=None, incident_priority: IncidentPriority=IncidentPriority.medium, incident_status: IncidentStatus=IncidentStatus.reported):
-    return
+async def incident_create(incident: schemas.IncidentBase, db: Session = Depends(get_db)):
+    db_reporter = crud.get_user(db=db, user_id=incident.reporter_id)
+    if db_reporter is None:
+        raise HTTPException(status_code=400, detail="Reporter not existing")
+
+    db_resolver = crud.get_user(db=db, user_id=incident.resolver_id)
+    if db_resolver is None:
+        raise HTTPException(status_code=400, detail="Resolver not existing")
+    return crud.create_incident(db=db, incident=incident)
 
 
 @app.put(base_url + "incidents", tags=[incident_tag])
 async def incident_update(incident_id: int, resolver_id: int, incident_status: IncidentStatus, incident_name: str,
-                          incident_description: str, incident_priority: int):
+                          incident_description: str, incident_priority: int, db: Session = Depends(get_db)):
     return {"message": incident_id}
 
 
 @app.get(base_url + "incidents/{incident_id}", tags=[incident_tag])
-async def incident_detail(incident_id: int):
-    return {"message": incident_id}
+async def incident_detail(incident_id: int, db: Session = Depends(get_db)):
+    db_incident = crud.get_incident(db, incident_id=incident_id)
+    if db_incident is None:
+        raise HTTPException(status_code=404, detail="Incident not found")
+    return db_incident
 
 
 @app.delete(base_url + "incidents/{incident_id}", tags=[incident_tag])
-async def incident_delete(incident_id: int):
+async def incident_delete(incident_id: int, db: Session = Depends(get_db)):
     return {"message": incident_id}
 
 
