@@ -3,6 +3,7 @@ from typing import Union, Optional
 
 from pydantic import BaseModel
 
+from src.middle.IncidentPriority import IncidentPriority
 from src.middle.UserRole import UserRole
 from src.middle.IncidentStatus import IncidentStatus
 
@@ -11,6 +12,7 @@ class IncidentBase(BaseModel):
     incident_name: str
     incident_description: Union[str, None] = None
     incident_status = IncidentStatus
+    incident_priority = IncidentPriority
     reporter_id = int
     resolver_id = int
 

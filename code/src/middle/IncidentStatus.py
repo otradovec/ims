@@ -5,6 +5,7 @@ class IncidentStatus(str, Enum):
     reported = "Reported"
     confirmed = "Confirmed"
     in_progress = "In progress"
+    for_review = "For review"
     solved = "Solved"
     cancelled = "Cancelled"
 
@@ -15,10 +16,12 @@ class IncidentStatus(str, Enum):
             return 2
         elif self.value == IncidentStatus.in_progress:
             return 3
-        elif self.value == IncidentStatus.solved:
+        elif self.value == IncidentStatus.for_review:
             return 4
-        else:  # self.value == IncidentStatus.cancelled:
+        elif self.value == IncidentStatus.solved:
             return 5
+        else:  # self.value == IncidentStatus.cancelled:
+            return 6
 
 
 def is_opened(status: IncidentStatus) -> bool:

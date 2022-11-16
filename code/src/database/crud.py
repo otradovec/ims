@@ -67,7 +67,7 @@ def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
 """
 
 
-def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_search, skip, limit, db):
+def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority, incident_search, skip, limit, db):
     query = db.query(models.Incident)
     if incident_id is not None:
         query = query.filter(models.Incident.incident_id == incident_id)
@@ -84,6 +84,10 @@ def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_ope
 
     if is_opened is not None:
         query = query.filter(models.Incident.is_opened == is_opened)
+
+    if incident_priority is not None:
+        priority_int = int(incident_priority)
+        query = query.filter(models.Incident.incident_priority == priority_int)
 
     if incident_search is not None:
         query = query.filter((models.Incident.incident_name.contains(incident_search)) |

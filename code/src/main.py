@@ -3,6 +3,7 @@ from typing import Union, Optional
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
+from src.middle.IncidentPriority import IncidentPriority
 from src.middle.IncidentStatus import IncidentStatus
 from src.models import models
 from src.database import crud
@@ -47,17 +48,17 @@ def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
 @app.get(base_url + "incidents", tags=[incident_tag], response_model=list[schemas.User])
 async def incidents_list(incident_id: int = None, incident_status: IncidentStatus = None, reporter_id: int = None,
-                         resolver_id: int = None, is_opened: Optional[bool] = None,
+                         resolver_id: int = None, is_opened: Optional[bool] = None, incident_priority: IncidentPriority = None,
                          incident_search: Optional[str] = None,
                          skip: int = 0, limit: int = 20, db: Session = Depends(get_db)
                          ):
-    return crud.incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_search, skip, limit, db)
+    return crud.incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority, incident_search, skip, limit, db)
 
 
 @app.post(base_url + "incidents", tags=[incident_tag])
-async def incident_create(reported_id: int, resolver_id: int, incident_status: IncidentStatus, incident_name: str,
-                          incident_description: str, incident_priority: int):
-    return {"message": reported_id}
+async def incident_create(reported_id: int, resolver_id: int, incident_name: str,
+                          incident_description: str=None, incident_priority: IncidentPriority=IncidentPriority.medium, incident_status: IncidentStatus=IncidentStatus.reported):
+    return
 
 
 @app.put(base_url + "incidents", tags=[incident_tag])

@@ -27,6 +27,7 @@ class Incident(Base):
     incident_name = Column(String, nullable=False)
     incident_description = Column(String)
     incident_status = Column(Integer, nullable=False)
+    incident_priority = Column(Integer, nullable=False)
     incident_created_at = Column(DateTime(timezone=True), nullable=False)
     incident_updated_at = Column(DateTime(timezone=True), nullable=False)
     reporter_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
