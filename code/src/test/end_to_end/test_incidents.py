@@ -15,10 +15,14 @@ def test_read_incidents_empty_all_params():
     assert response.status_code == 200, "Empty incidents list"
 
 
+def test_read_non_existing_incident():
+    response = client.get(base_url + "incidents/8888888")
+    assert response.status_code == 404
+
+
 def test_crud_incident():
     created_user_id = Helper.get_user_id()
-    response = client.get(base_url + "incidents/1")
-    assert response.status_code == 404  # Incident not yet created
+
     json_create = {
         "incident_name": "Cryptocurrency mining",
         "incident_description": "There is a cryptocurrency mining reported on the main server",

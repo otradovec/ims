@@ -96,7 +96,7 @@ def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_ope
     if incident_search is not None:
         query = query.filter((models.Incident.incident_name.contains(incident_search)) |
                              (models.Incident.incident_description.contains(incident_search)))
-    return query.offset(skip).limit(limit).all()  # TODO test return of multiple obj
+    return query.offset(skip).limit(limit).all()
 
 
 def create_incident(db: Session, incident: schemas.IncidentBase):
@@ -137,3 +137,28 @@ def incident_delete(incident_id: int, db: Session):
     db.commit()
     return res
 
+
+def connected_events_list(incident_id, event_id, db: Session, skip=0, limit=20):
+    query = db.query(models.EventIncident)
+    if incident_id is not None:
+        query = query.filter(models.EventIncident.incident_id == incident_id)
+
+    if event_id is not None:
+        query = query.filter(models.EventIncident.event_id == event_id)
+
+    return query.offset(skip).limit(limit).all()
+
+
+def connected_events_create(incident_id: int, event_id: int, db: Session):
+    connection = models.EventIncident(incident_id=incident_id, event_id=event_id)
+    db.add(connection)
+    db.commit()
+    db.refresh(connection)
+    return connection
+
+
+def connected_events_delete(incident_id: int, event_id: int, db: Session):
+    res = db.query(models.EventIncident).filter(models.EventIncident.incident_id == incident_id,
+                                                models.EventIncident.event_id == event_id).delete()
+    db.commit()
+    return res

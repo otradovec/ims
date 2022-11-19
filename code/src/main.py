@@ -30,22 +30,6 @@ def get_db():
         db.close()
 
 
-"""
-@app.post("/users/{user_id}/items/", response_model=schemas.Item)
-def create_item_for_user(
-    user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
-):
-    return crud.create_user_item(db=db, item=item, user_id=user_id)
-
-
-@app.get("/items/", response_model=list[schemas.Item])
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return items
-
-"""
-
-
 @app.get(base_url + "incidents", tags=[incident_tag])
 async def incidents_list(incident_id: int = None, incident_status: IncidentStatus = None, reporter_id: int = None,
                          resolver_id: int = None, is_opened: Optional[bool] = None, incident_priority: IncidentPriority = None,
@@ -92,6 +76,7 @@ async def incident_delete(incident_id: int, db: Session = Depends(get_db)):
     return crud.incident_delete(incident_id, db)
 
 
+"""
 @app.get(base_url + "incident-states", tags=[incident_tag])
 async def incident_states():
     return {"message": "Those are the states"}
@@ -104,20 +89,29 @@ async def incident_states(incident_state_id: int):
 
 """
 @app.get(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_list(incident_id: Union[int, None] = None, event_id: Union[int, None] = None):
-    return {"The ": "The state is"}
+async def connected_events_list(incident_id: Union[int, None] = None, event_id: Union[int, None] = None,
+                                skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
+    return crud.connected_events_list(incident_id=incident_id, event_id=event_id, skip=skip, limit=limit, db=db)
 
 
 @app.post(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_create(incident_id: int, event_id: int):
-    return {"The ": incident_id}
+async def connected_events_create(incident_id: int, event_id: int, db: Session = Depends(get_db)):
+    existing_connections_list = crud.connected_events_list(incident_id, event_id, db)
+    if len(existing_connections_list) > 0:
+        raise HTTPException(status_code=400, detail="Connection already present")
+
+    incident = crud.get_incident(db, incident_id)
+    if incident is None:
+        raise HTTPException(status_code=400, detail="No incident with incident_id")
+
+    return crud.connected_events_create(incident_id, event_id, db)
 
 
 @app.delete(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_delete(incident_id: int, event_id: int):
-    return {"The ": "The state is"}
+async def connected_events_delete(incident_id: int, event_id: int, db: Session = Depends(get_db)):
+    return crud.connected_events_delete(incident_id, event_id, db)
 
-
+"""
 @app.get(base_url + "comments", tags=[comments_tag])
 async def comments_list(incident_id: int):
     return {"The ": incident_id}
