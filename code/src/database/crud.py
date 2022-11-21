@@ -162,3 +162,37 @@ def connected_events_delete(incident_id: int, event_id: int, db: Session):
                                                 models.EventIncident.event_id == event_id).delete()
     db.commit()
     return res
+
+
+def comments_list(incident_id: int, db: Session):
+    return db.query(models.Comment).filter(models.Comment.incident_id == incident_id).all()
+
+
+def comment_create(incident_id: int, author_id: int, comment_text: str, db: Session):
+    comment = models.Comment(incident_id=incident_id, author_id=author_id, comment_text=comment_text,
+                             comment_created_at=datetime.datetime.now(),
+                             comment_updated_at=datetime.datetime.now())
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
+    return comment
+
+
+def get_comment(db: Session, comment_id: int):
+    return db.query(models.Comment).filter(models.Comment.comment_id == comment_id).first()
+
+
+def update_comment(comment_text: str, comment_found, db_session: Session):
+    comment_id = comment_found.comment_id
+    result = db_session.query(models.Comment).filter(models.Comment.comment_id == comment_id).update({
+        "comment_text": comment_text,
+        "comment_updated_at": datetime.datetime.now(),
+    })
+    db_session.commit()
+    return result
+
+
+def comment_delete(comment_id: int, db: Session):
+    res = db.query(models.Comment).filter(models.Comment.comment_id == comment_id).delete()
+    db.commit()
+    return res

@@ -1,9 +1,10 @@
-import json
+import pytest
 
 from src.test.end_to_end.helper import Helper
 from src.test.end_to_end.test_main import client, base_url
 
 
+@pytest.mark.order("first")
 def test_read_connected_events_empty():
     response = client.get(base_url + "connected-events")
     assert response.status_code == 200, response.text

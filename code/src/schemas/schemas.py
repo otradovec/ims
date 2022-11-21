@@ -53,3 +53,19 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class CommentBase(BaseModel):
+    comment_text: Union[str, None] = None
+
+
+class CommentUpdate(CommentBase):
+    comment_id: int
+
+
+class CommentDetail(CommentUpdate):
+    comment_created_at: datetime
+    comment_updated_at: datetime
+    author_id: int
+    incident_id: int
+

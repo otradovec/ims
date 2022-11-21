@@ -111,32 +111,53 @@ async def connected_events_create(incident_id: int, event_id: int, db: Session =
 async def connected_events_delete(incident_id: int, event_id: int, db: Session = Depends(get_db)):
     return crud.connected_events_delete(incident_id, event_id, db)
 
-"""
+
 @app.get(base_url + "comments", tags=[comments_tag])
-async def comments_list(incident_id: int):
-    return {"The ": incident_id}
+async def comments_list(incident_id: int, db: Session = Depends(get_db)):
+    incident = crud.get_incident(db, incident_id)
+    if incident is None:
+        raise HTTPException(status_code=400, detail="No incident with incident_id")
+
+    return crud.comments_list(incident_id, db)
 
 
 @app.post(base_url + "comments", tags=[comments_tag])
-async def comment_create(incident_id: int, author_id: int, comment_text: str):
-    return {"The ": incident_id}
+async def comment_create(incident_id: int, author_id: int, comment_text: str, db: Session = Depends(get_db)):
+    incident = crud.get_incident(db, incident_id)
+    if incident is None:
+        raise HTTPException(status_code=400, detail="No incident with incident_id")
+
+    user = crud.get_user(db, author_id)
+    if user is None:
+        raise HTTPException(status_code=400, detail="No user with author_id specified")
+
+    return crud.comment_create(incident_id, author_id, comment_text, db)
 
 
 @app.get(base_url + "comments/{comment_id}", tags=[comments_tag])
-async def comment_view(comment_id: int):
-    return {"The ": comment_id}
+async def comment_view(comment_id: int, db: Session = Depends(get_db)):
+    db_comment = crud.get_comment(db, comment_id=comment_id)
+    if db_comment is None:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    return db_comment
 
 
-@app.put(base_url + "comments/{comment_id}", tags=[comments_tag])
-async def comment_update(comment_id: int, comment_text: str):
-    return {"The ": comment_id}
+@app.put(base_url + "comments", tags=[comments_tag])
+async def comment_update(comment_id: int, comment_text: str, db: Session = Depends(get_db)):
+    comment_found = db.query(models.Comment).filter(models.Comment.comment_id == comment_id).first()
+    if comment_found is None:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    crud.update_comment(comment_text=comment_text, comment_found=comment_found, db_session=db)
+    return "OK"
 
 
 @app.delete(base_url + "comments/{comment_id}", tags=[comments_tag])
-async def comment_delete(comment_id: int):
-    return {"The ": comment_id}
+async def comment_delete(comment_id: int, db: Session = Depends(get_db)):
+    return crud.comment_delete(comment_id, db)
 
 
+"""
 @app.get(base_url + "attachments", tags=[comments_tag])
 async def attachments_list(comment_id: int):
     return {"The ": comment_id}

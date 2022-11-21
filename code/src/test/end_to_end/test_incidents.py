@@ -1,20 +1,23 @@
-import json
+import json, pytest
 
 from src.test.end_to_end.helper import Helper
 from src.test.end_to_end.test_main import client, base_url
 
 
+@pytest.mark.order("first")
 def test_read_incidents_empty():
     response = client.get(base_url + "incidents?skip=0&limit=20")
     assert response.status_code == 200, "Empty incidents list"
 
 
+@pytest.mark.order("first")
 def test_read_incidents_empty_all_params():
     response = client.get(base_url + "incidents?incident_id=1&incident_status=Reported&reporter_id=1&resolver_id=1&"
                           + "is_opened=true&incident_priority=Low&incident_search=mining&skip=0&limit=20")
     assert response.status_code == 200, "Empty incidents list"
 
 
+@pytest.mark.order("first")
 def test_read_non_existing_incident():
     response = client.get(base_url + "incidents/8888888")
     assert response.status_code == 404
