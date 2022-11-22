@@ -1,6 +1,6 @@
 from typing import Union, Optional
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from src.middle.IncidentPriority import IncidentPriority
@@ -157,27 +157,38 @@ async def comment_delete(comment_id: int, db: Session = Depends(get_db)):
     return crud.comment_delete(comment_id, db)
 
 
-"""
 @app.get(base_url + "attachments", tags=[comments_tag])
-async def attachments_list(comment_id: int):
-    return {"The ": comment_id}
+async def attachments_list(comment_id: int, db: Session = Depends(get_db)):
+    comment = crud.get_comment(db, comment_id)
+    if comment is None:
+        raise HTTPException(status_code=400, detail="No comment with comment_id specified")
+
+    return crud.attachments_list(comment_id, db)
 
 
 @app.post(base_url + "attachments", tags=[comments_tag])
-async def attachment_create(comment_id: int, attachment_path: str):
-    return {"The ": comment_id}
+async def attachment_create(comment_id: int, file: UploadFile, db: Session = Depends(get_db)):
+    comment = crud.get_comment(db, comment_id)
+    if comment is None:
+        raise HTTPException(status_code=400, detail="No comment with comment_id specified")
+
+    contents = await file.read()
+    filename = file.filename
+    content_type = file.content_type
+    return crud.attachment_create(comment_id, contents, filename, content_type, db)
 
 
 @app.get(base_url + "attachments/{attachment_id}", tags=[comments_tag])
-async def attachment_view(attachment_id: int):
-    return {"The ": attachment_id}
+async def attachment_view(attachment_id: int, db: Session = Depends(get_db)):
+    db_attachment = crud.attachment_get(attachment_id=attachment_id, db=db)
+    if db_attachment is None:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+    return db_attachment
 
 
 @app.delete(base_url + "attachments/{attachment_id}", tags=[comments_tag])
-async def attachment_delete(attachment_id: int):
-    return {"The ": attachment_id}
-
-"""
+async def attachment_delete(attachment_id: int, db: Session = Depends(get_db)):
+    return crud.attachment_delete(attachment_id, db)
 
 
 # Users

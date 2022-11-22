@@ -12,5 +12,5 @@ class IncidentPriority(str, Enum):
         elif self.value == IncidentPriority.medium:
             return 0
         else:  # self.value == IncidentPriority.high:
-            return 2
+            return 2  # TODO
 

@@ -5,6 +5,7 @@ requests==2.28.1
 urllib3==1.26.12
 fastapi[all]
 sqlalchemy
-httpx
+httpx #  For TestClient
 pytest
 pytest-order
+python-multipart #  For file upload

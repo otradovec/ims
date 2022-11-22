@@ -60,7 +60,9 @@ class Attachment(Base):
     __tablename__ = "attachments"
 
     attachment_id = Column(Integer, primary_key=True, index=True)
-    attachment_path = Column(String, nullable=False)
+    attachment_path = Column(String, nullable=False, unique=True)
+    attachment_name = Column(String, nullable=False)
+    attachment_content_type = Column(String, nullable=False)
     comment_id = Column(Integer, ForeignKey("comments.comment_id"), nullable=False)
 
 

@@ -6,7 +6,7 @@ from src.test.end_to_end.test_main import client, base_url
 class Helper:
 
     userID1 = userID2 = None
-    incidentID1 = None
+    incidentID1 = commentID1 = None
 
     @classmethod
     def get_user_id(cls) -> int:
@@ -59,3 +59,22 @@ class Helper:
         response = client.post(url=base_url + "incidents", json=json_create)
         response_json = json.loads(response.text)
         return response_json["incident_id"]
+
+    @classmethod
+    def get_comment_id(cls):
+        if cls.commentID1 is not None:
+            return cls.incidentID1
+        else:
+            author_id = cls.get_user_id()
+            incident_id = cls.get_incident_id()
+            comment_text = "Mining%20occurs%20every%20night"
+            comment_id = cls.create_comment(incident_id, author_id, comment_text)
+            cls.commentID1 = comment_id
+            return comment_id
+
+    @classmethod
+    def create_comment(cls, incident_id, author_id, comment_text) -> int:
+        response = client.post(
+            url=base_url + f"comments?incident_id={incident_id}&author_id={author_id}&comment_text={comment_text}")
+        response_json = json.loads(response.text)
+        return response_json["comment_id"]

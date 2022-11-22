@@ -20,8 +20,10 @@ class IncidentStatus(str, Enum):
             return 4
         elif self.value == IncidentStatus.solved:
             return 5
-        else:  # self.value == IncidentStatus.cancelled:
+        elif self.value == IncidentStatus.cancelled:
             return 6
+        else:
+            raise Exception("Unknown incident code")
 
 
 def is_opened(status: IncidentStatus) -> bool:
