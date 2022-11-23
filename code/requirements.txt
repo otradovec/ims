@@ -1,11 +1,6 @@
-certifi==2022.9.24
-charset-normalizer==2.1.1
-idna==3.4
+fastapi==0.87.0
+pydantic==1.10.2
+pytest==7.2.0
 requests==2.28.1
+SQLAlchemy==1.4.44
 urllib3==1.26.12
-fastapi[all]
-sqlalchemy
-httpx #  For TestClient
-pytest
-pytest-order
-python-multipart #  For file upload

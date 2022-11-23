@@ -17,12 +17,16 @@ def get_user_by_email(db: Session, email: str):
 
 
 def get_users(db: Session, skip: int = 0, limit: int = 100, user_search: str = None):
-    query = db.query(models.User).offset(skip).limit(limit).options(
-        load_only(models.User.user_id, models.User.email, models.User.is_active, models.User.user_role))
-    if user_search is None:
-        return query.all()
+    if user_search is not None:
+        #  Filter like must be applied directly to new query, otherwise produces RecursiveError
+        query = db.query(models.User).options(
+            load_only(models.User.user_id, models.User.email, models.User.is_active, models.User.user_role))\
+            .filter(models.User.email.like(user_search + '%'))
     else:
-        return query.filter(models.User.email.like('%' + user_search + '%')).all()
+        query = db.query(models.User).options(
+            load_only(models.User.user_id, models.User.email, models.User.is_active, models.User.user_role))
+    query = query.offset(skip).limit(limit)
+    return query.all()
 
 
 def create_user(db: Session, user: schemas.UserCreate):

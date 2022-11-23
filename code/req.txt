@@ -1,0 +1,8 @@
+pipreqs
+fastapi[all]
+sqlalchemy
+psycopg2-binary
+httpx #  For TestClient
+pytest
+pytest-order
+python-multipart #  For file upload
