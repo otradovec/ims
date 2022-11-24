@@ -30,3 +30,6 @@ def test_crd_attachment():
 
     response = client.delete(base_url + f"attachments/{attachment_id}")
     assert response.status_code == 200, response.text  # Delete attachment
+
+    response = client.get(base_url + f"attachments/{attachment_id}")
+    assert response.status_code == 404, response.text  # Get deleted attachment
