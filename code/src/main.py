@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 
 from src.middle.IncidentPriority import IncidentPriority
 from src.middle.IncidentStatus import IncidentStatus
+from src.middle.UserRole import UserRole
+from src.middle.enum_to_json import enum_to_json
 from src.models import models
 from src.database import crud
 from src.schemas import schemas
@@ -76,18 +78,16 @@ async def incident_delete(incident_id: int, db: Session = Depends(get_db)):
     return crud.incident_delete(incident_id, db)
 
 
-"""
 @app.get(base_url + "incident-states", tags=[incident_tag])
 async def incident_states():
-    return {"message": "Those are the states"}
+    return enum_to_json(IncidentStatus)
 
 
-@app.get(base_url + "incident-states/{incident_state_id}", tags=[incident_tag])
-async def incident_states(incident_state_id: int):
-    return {incident_state_id: "The state is"}
+@app.get(base_url + "incident-priorities", tags=[incident_tag])
+async def incident_priorities():
+    return enum_to_json(IncidentPriority)
 
 
-"""
 @app.get(base_url + "connected-events", tags=[connected_events_tag])
 async def connected_events_list(incident_id: Union[int, None] = None, event_id: Union[int, None] = None,
                                 skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
@@ -192,14 +192,14 @@ async def attachment_delete(attachment_id: int, db: Session = Depends(get_db)):
 
 
 # Users
-@app.get(base_url + "users", tags=[users_tag], response_model=list[schemas.User])
+@app.get(base_url + "users", tags=[users_tag])
 async def users_list(skip: int = 0, limit: int = 100, db: Session = Depends(get_db),
                      user_search: Union[str, None] = None):
     users = crud.get_users(db, skip=skip, limit=limit, user_search=user_search)
     return users
 
 
-@app.post(base_url + "users", tags=[users_tag], response_model=schemas.User)
+@app.post(base_url + "users", tags=[users_tag])
 async def user_create(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if user.user_role is None:
         raise HTTPException(status_code=422, detail="Role cannot be empty.")
@@ -209,7 +209,7 @@ async def user_create(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
-@app.get(base_url + "users/{user_id}", tags=[users_tag], response_model=schemas.User)
+@app.get(base_url + "users/{user_id}", tags=[users_tag])
 async def user_view(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
     if db_user is None:
@@ -217,7 +217,7 @@ async def user_view(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
-@app.put(base_url + "users", tags=[users_tag], response_model=schemas.User)
+@app.put(base_url + "users", tags=[users_tag])
 async def user_update(user_updated: schemas.User, db: Session = Depends(get_db)):
     user_found = db.query(models.User).filter(models.User.user_id == user_updated.user_id).first()
     if user_found is None:
@@ -239,6 +239,10 @@ async def user_update_passwd(user_id: int, hashed_password: str, db: Session = D
 async def user_delete(user_id: int, db: Session = Depends(get_db)):
     return crud.user_delete(user_id, db)
 
+
+@app.get(base_url + "user-roles", tags=[users_tag])
+async def user_roles():
+    return enum_to_json(UserRole)
 
 """
 @app.post(base_url + "users/{user_id}/token", tags=[users_tag])

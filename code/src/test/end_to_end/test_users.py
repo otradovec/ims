@@ -21,20 +21,20 @@ def test_crud_user():
     assert response.status_code == 404  # User not yet created
     json_create = {
         "email": "klement@hofbauer.com",
-        "user_role": 2,
+        "user_role": "NetOps",
         "hashed_password": "string"
     }
     response = client.post(url=base_url + "users", json=json_create)
-    assert response.status_code == 200  # User created
+    assert response.status_code == 200, "User created" + response.text
 
     response = client.get(base_url + "users/1")
-    assert response.status_code == 200  # User detail
+    assert response.status_code == 200, "User detail" + response.text
     assert "klement" in response.text
 
     updated_json = {
         "user_id": 1,
         "email": "klement@hofbauer.com",
-        "user_role": 3,
+        "user_role": "Manager",
         "is_active": True
     }
     response = client.put(url=base_url + "users", json=updated_json)
@@ -63,3 +63,8 @@ def test_user_list():
     assert response.status_code == 200  # User list with partial search
     assert email_part in response.text
 
+
+def test_user_roles():
+    response = client.get(url=base_url + f"user-roles")
+    assert response.status_code == 200
+    assert '"Support":1,' in response.text

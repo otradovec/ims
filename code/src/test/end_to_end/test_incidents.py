@@ -57,3 +57,12 @@ def test_crud_incident():
     assert response.status_code == 200, "Incident deleted " + response.text
 
 
+def test_incident_states():
+    response = client.get(url=base_url + f"incident-states")
+    assert response.status_code == 200, response.text
+    assert "Reported" in response.text
+
+def test_incident_priorities():
+    response = client.get(url=base_url + f"incident-priorities")
+    assert response.status_code == 200, response.text
+    assert "Medium" in response.text
