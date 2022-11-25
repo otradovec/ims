@@ -1,6 +1,8 @@
 from typing import Union, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile
+from pydantic.types import NonNegativeInt, PositiveInt
+from pydantic import Field
 from sqlalchemy.orm import Session
 
 from src.middle.IncidentPriority import IncidentPriority
@@ -35,10 +37,11 @@ def get_db():
 @app.get(base_url + "incidents", tags=[incident_tag])
 async def incidents_list(incident_id: int = None, incident_status: IncidentStatus = None, reporter_id: int = None,
                          resolver_id: int = None, is_opened: Optional[bool] = None, incident_priority: IncidentPriority = None,
-                         incident_search: Optional[str] = None,
-                         skip: int = 0, limit: int = 20, db: Session = Depends(get_db)
+                         incident_search: Optional[str] = None, skip: NonNegativeInt = 0,
+                         limit: PositiveInt = 20, db: Session = Depends(get_db)
                          ):
-    return crud.incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority, incident_search, skip, limit, db)
+    return crud.incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority,
+                              incident_search, skip, limit, db)
 
 
 @app.post(base_url + "incidents", tags=[incident_tag])
@@ -90,7 +93,8 @@ async def incident_priorities():
 
 @app.get(base_url + "connected-events", tags=[connected_events_tag])
 async def connected_events_list(incident_id: Union[int, None] = None, event_id: Union[int, None] = None,
-                                skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
+                                skip: NonNegativeInt = 0, limit: PositiveInt = 20,
+                                db: Session = Depends(get_db)):
     return crud.connected_events_list(incident_id=incident_id, event_id=event_id, skip=skip, limit=limit, db=db)
 
 
@@ -113,7 +117,8 @@ async def connected_events_delete(incident_id: int, event_id: int, db: Session =
 
 
 @app.get(base_url + "comments", tags=[comments_tag])
-async def comments_list(incident_id: int, skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
+async def comments_list(incident_id: int, skip: NonNegativeInt = 0, limit: PositiveInt = 20,
+                        db: Session = Depends(get_db)):
     incident = crud.get_incident(db, incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")
@@ -193,8 +198,8 @@ async def attachment_delete(attachment_id: int, db: Session = Depends(get_db)):
 
 # Users
 @app.get(base_url + "users", tags=[users_tag])
-async def users_list(skip: int = 0, limit: int = 100, db: Session = Depends(get_db),
-                     user_search: Union[str, None] = None):
+async def users_list(skip: NonNegativeInt = 0, limit: PositiveInt = 20,
+                     db: Session = Depends(get_db), user_search: Union[str, None] = None):
     users = crud.get_users(db, skip=skip, limit=limit, user_search=user_search)
     return users
 

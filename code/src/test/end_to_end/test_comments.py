@@ -69,3 +69,8 @@ def test_list_comments():
     response = client.get(base_url + f"comments?incident_id={incident_id}&skip=0&limit=20")
     assert response.status_code == 200, response.text
 
+    response = client.get(base_url + f"comments?incident_id={incident_id}&skip=-5&limit=20")
+    assert response.status_code == 422, response.text
+
+    response = client.get(base_url + f"comments?incident_id={incident_id}&skip=0&limit=-20")
+    assert response.status_code == 422, response.text

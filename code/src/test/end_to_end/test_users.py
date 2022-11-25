@@ -63,6 +63,9 @@ def test_user_list():
     assert response.status_code == 200  # User list with partial search
     assert email_part in response.text
 
+    response = client.get(url=base_url + f"users?skip=-5&limit=100&user_search={email_part}")
+    assert response.status_code == 422
+
 
 def test_user_roles():
     response = client.get(url=base_url + f"user-roles")

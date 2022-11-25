@@ -68,4 +68,3 @@ class CommentDetail(CommentUpdate):
     comment_updated_at: datetime
     author_id: int
     incident_id: int
-
