@@ -58,3 +58,14 @@ def test_bad_create_comment_request():
 
     response = client.post(url=base_url + f"comments?incident_id=8888888&author_id=888888&comment_text=%40RayTussen")
     assert response.status_code == 400, response.text  # Comment not created
+
+
+@pytest.mark.order("fourth")
+def test_list_comments():
+    incident_id = Helper.get_incident_id()
+    response = client.get(base_url + f"comments?incident_id={incident_id}")
+    assert response.status_code == 200, response.text
+
+    response = client.get(base_url + f"comments?incident_id={incident_id}&skip=0&limit=20")
+    assert response.status_code == 200, response.text
+

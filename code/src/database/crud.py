@@ -159,8 +159,9 @@ def connected_events_delete(incident_id: int, event_id: int, db: Session):
     return res
 
 
-def comments_list(incident_id: int, db: Session):
-    return db.query(models.Comment).filter(models.Comment.incident_id == incident_id).all()
+def comments_list(incident_id: int, skip, limit, db: Session):
+    return db.query(models.Comment).filter(models.Comment.incident_id == incident_id)\
+        .offset(skip).limit(limit).all()
 
 
 def comment_create(incident_id: int, author_id: int, comment_text: str, db: Session):

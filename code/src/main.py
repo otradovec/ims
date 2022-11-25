@@ -113,12 +113,12 @@ async def connected_events_delete(incident_id: int, event_id: int, db: Session =
 
 
 @app.get(base_url + "comments", tags=[comments_tag])
-async def comments_list(incident_id: int, db: Session = Depends(get_db)):
+async def comments_list(incident_id: int, skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
     incident = crud.get_incident(db, incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")
 
-    return crud.comments_list(incident_id, db)
+    return crud.comments_list(incident_id, skip, limit, db)
 
 
 @app.post(base_url + "comments", tags=[comments_tag])
