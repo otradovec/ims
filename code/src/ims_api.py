@@ -2,7 +2,6 @@ from typing import Union, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile
 from pydantic.types import NonNegativeInt, PositiveInt
-from pydantic import Field
 from sqlalchemy.orm import Session
 
 from src.middle.IncidentPriority import IncidentPriority
