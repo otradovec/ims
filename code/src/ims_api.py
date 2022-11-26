@@ -34,13 +34,13 @@ def get_db():
 
 
 @app.get(base_url + "incidents", tags=[incident_tag])
-async def incidents_list(incident_id: int = None, incident_status: IncidentStatus = None, reporter_id: int = None,
+async def incidents_list(incident_status: IncidentStatus = None, reporter_id: int = None,
                          resolver_id: int = None, is_opened: Optional[bool] = None,
                          incident_priority: IncidentPriority = None,
                          incident_search: Optional[str] = None, skip: NonNegativeInt = 0,
                          limit: PositiveInt = 20, db: Session = Depends(get_db)
                          ):
-    return incidents.incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority,
+    return incidents.incident_list(incident_status, reporter_id, resolver_id, is_opened, incident_priority,
                                    incident_search, skip, limit, db)
 
 

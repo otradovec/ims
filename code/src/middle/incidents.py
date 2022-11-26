@@ -6,12 +6,9 @@ from src.models import models
 from src.schemas import schemas
 
 
-def incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority, incident_search,
+def incident_list(incident_status, reporter_id, resolver_id, is_opened, incident_priority, incident_search,
                   skip, limit, db):
     query = db.query(models.Incident)
-    if incident_id is not None:
-        query = query.filter(models.Incident.incident_id == incident_id)
-
     if incident_status is not None:
         status_int = int(incident_status)
         query = query.filter(models.Incident.incident_status == status_int)
