@@ -8,8 +8,8 @@ from src.middle.IncidentPriority import IncidentPriority
 from src.middle.IncidentStatus import IncidentStatus
 from src.middle.UserRole import UserRole
 from src.middle.enum_to_json import enum_to_json
+from src.middle import comments, connected_events, incidents, users
 from src.models import models
-from src.database import crud
 from src.schemas import schemas
 from src.database.database import SessionLocal, engine
 
@@ -35,41 +35,43 @@ def get_db():
 
 @app.get(base_url + "incidents", tags=[incident_tag])
 async def incidents_list(incident_id: int = None, incident_status: IncidentStatus = None, reporter_id: int = None,
-                         resolver_id: int = None, is_opened: Optional[bool] = None, incident_priority: IncidentPriority = None,
+                         resolver_id: int = None, is_opened: Optional[bool] = None,
+                         incident_priority: IncidentPriority = None,
                          incident_search: Optional[str] = None, skip: NonNegativeInt = 0,
                          limit: PositiveInt = 20, db: Session = Depends(get_db)
                          ):
-    return crud.incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority,
-                              incident_search, skip, limit, db)
+    return incidents.incident_list(incident_id, incident_status, reporter_id, resolver_id, is_opened, incident_priority,
+                                   incident_search, skip, limit, db)
 
 
 @app.post(base_url + "incidents", tags=[incident_tag])
 async def incident_create(incident: schemas.IncidentBase, db: Session = Depends(get_db)):
-    db_reporter = crud.get_user(db=db, user_id=incident.reporter_id)
+    db_reporter = users.get_user(db=db, user_id=incident.reporter_id)
     if db_reporter is None:
         raise HTTPException(status_code=400, detail="Reporter not existing")
 
-    db_resolver = crud.get_user(db=db, user_id=incident.resolver_id)
+    db_resolver = users.get_user(db=db, user_id=incident.resolver_id)
     if db_resolver is None:
         raise HTTPException(status_code=400, detail="Resolver not existing")
-    return crud.create_incident(db=db, incident=incident)
+    return incidents.create_incident(db=db, incident=incident)
 
 
 @app.put(base_url + "incidents", tags=[incident_tag])
 async def incident_update(incident_updated: schemas.IncidentUpdate, db: Session = Depends(get_db)):
-    incident_found = db.query(models.Incident).filter(models.Incident.incident_id == incident_updated.incident_id).first()
+    incident_found = db.query(models.Incident).filter(
+        models.Incident.incident_id == incident_updated.incident_id).first()
     if incident_found is None:
         raise HTTPException(status_code=404, detail="Incident not found")
     resolver_found = db.query(models.User).filter(models.User.user_id == incident_updated.resolver_id).first()
     if resolver_found is None:
         raise HTTPException(status_code=404, detail="Resolver not found")
-    crud.update_incident(incident_updated=incident_updated, incident_found=incident_found, db_session=db)
+    incidents.update_incident(incident_updated=incident_updated, incident_found=incident_found, db_session=db)
     return incident_updated
 
 
 @app.get(base_url + "incidents/{incident_id}", tags=[incident_tag])
 async def incident_detail(incident_id: int, db: Session = Depends(get_db)):
-    db_incident = crud.get_incident(db, incident_id=incident_id)
+    db_incident = incidents.get_incident(db, incident_id=incident_id)
     if db_incident is None:
         raise HTTPException(status_code=404, detail="Incident not found")
     return db_incident
@@ -77,7 +79,7 @@ async def incident_detail(incident_id: int, db: Session = Depends(get_db)):
 
 @app.delete(base_url + "incidents/{incident_id}", tags=[incident_tag])
 async def incident_delete(incident_id: int, db: Session = Depends(get_db)):
-    return crud.incident_delete(incident_id, db)
+    return incidents.incident_delete(incident_id, db)
 
 
 @app.get(base_url + "incident-states", tags=[incident_tag])
@@ -94,53 +96,54 @@ async def incident_priorities():
 async def connected_events_list(incident_id: Union[int, None] = None, event_id: Union[int, None] = None,
                                 skip: NonNegativeInt = 0, limit: PositiveInt = 20,
                                 db: Session = Depends(get_db)):
-    return crud.connected_events_list(incident_id=incident_id, event_id=event_id, skip=skip, limit=limit, db=db)
+    return connected_events.connected_events_list(incident_id=incident_id, event_id=event_id, skip=skip, limit=limit,
+                                                  db=db)
 
 
 @app.post(base_url + "connected-events", tags=[connected_events_tag])
 async def connected_events_create(incident_id: int, event_id: int, db: Session = Depends(get_db)):
-    existing_connections_list = crud.connected_events_list(incident_id, event_id, db)
+    existing_connections_list = connected_events.connected_events_list(incident_id, event_id, db)
     if len(existing_connections_list) > 0:
         raise HTTPException(status_code=400, detail="Connection already present")
 
-    incident = crud.get_incident(db, incident_id)
+    incident = incidents.get_incident(db, incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")
 
-    return crud.connected_events_create(incident_id, event_id, db)
+    return connected_events.connected_events_create(incident_id, event_id, db)
 
 
 @app.delete(base_url + "connected-events", tags=[connected_events_tag])
 async def connected_events_delete(incident_id: int, event_id: int, db: Session = Depends(get_db)):
-    return crud.connected_events_delete(incident_id, event_id, db)
+    return connected_events.connected_events_delete(incident_id, event_id, db)
 
 
 @app.get(base_url + "comments", tags=[comments_tag])
 async def comments_list(incident_id: int, skip: NonNegativeInt = 0, limit: PositiveInt = 20,
                         db: Session = Depends(get_db)):
-    incident = crud.get_incident(db, incident_id)
+    incident = incidents.get_incident(db, incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")
 
-    return crud.comments_list(incident_id, skip, limit, db)
+    return comments.comments_list(incident_id, skip, limit, db)
 
 
 @app.post(base_url + "comments", tags=[comments_tag])
 async def comment_create(incident_id: int, author_id: int, comment_text: str, db: Session = Depends(get_db)):
-    incident = crud.get_incident(db, incident_id)
+    incident = incidents.get_incident(db, incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")
 
-    user = crud.get_user(db, author_id)
+    user = users.get_user(db, author_id)
     if user is None:
         raise HTTPException(status_code=400, detail="No user with author_id specified")
 
-    return crud.comment_create(incident_id, author_id, comment_text, db)
+    return comments.comment_create(incident_id, author_id, comment_text, db)
 
 
 @app.get(base_url + "comments/{comment_id}", tags=[comments_tag])
 async def comment_view(comment_id: int, db: Session = Depends(get_db)):
-    db_comment = crud.get_comment(db, comment_id=comment_id)
+    db_comment = comments.get_comment(db, comment_id=comment_id)
     if db_comment is None:
         raise HTTPException(status_code=404, detail="Comment not found")
     return db_comment
@@ -152,39 +155,39 @@ async def comment_update(comment_id: int, comment_text: str, db: Session = Depen
     if comment_found is None:
         raise HTTPException(status_code=404, detail="Comment not found")
 
-    crud.update_comment(comment_text=comment_text, comment_found=comment_found, db_session=db)
+    comments.update_comment(comment_text=comment_text, comment_found=comment_found, db_session=db)
     return "OK"
 
 
 @app.delete(base_url + "comments/{comment_id}", tags=[comments_tag])
 async def comment_delete(comment_id: int, db: Session = Depends(get_db)):
-    return crud.comment_delete(comment_id, db)
+    return comments.comment_delete(comment_id, db)
 
 
 @app.get(base_url + "attachments", tags=[comments_tag])
 async def attachments_list(comment_id: int, db: Session = Depends(get_db)):
-    comment = crud.get_comment(db, comment_id)
+    comment = comments.get_comment(db, comment_id)
     if comment is None:
         raise HTTPException(status_code=400, detail="No comment with comment_id specified")
 
-    return crud.attachments_list(comment_id, db)
+    return comments.attachments_list(comment_id, db)
 
 
 @app.post(base_url + "attachments", tags=[comments_tag])
 async def attachment_create(comment_id: int, file: UploadFile, db: Session = Depends(get_db)):
-    comment = crud.get_comment(db, comment_id)
+    comment = comments.get_comment(db, comment_id)
     if comment is None:
         raise HTTPException(status_code=400, detail="No comment with comment_id specified")
 
     contents = await file.read()
     filename = file.filename
     content_type = file.content_type
-    return crud.attachment_create(comment_id, contents, filename, content_type, db)
+    return comments.attachment_create(comment_id, contents, filename, content_type, db)
 
 
 @app.get(base_url + "attachments/{attachment_id}", tags=[comments_tag])
 async def attachment_view(attachment_id: int, db: Session = Depends(get_db)):
-    db_attachment = crud.attachment_get(attachment_id=attachment_id, db=db)
+    db_attachment = comments.attachment_get(attachment_id=attachment_id, db=db)
     if db_attachment is None:
         raise HTTPException(status_code=404, detail="Attachment not found")
     return db_attachment
@@ -192,30 +195,30 @@ async def attachment_view(attachment_id: int, db: Session = Depends(get_db)):
 
 @app.delete(base_url + "attachments/{attachment_id}", tags=[comments_tag])
 async def attachment_delete(attachment_id: int, db: Session = Depends(get_db)):
-    return crud.attachment_delete(attachment_id, db)
+    return comments.attachment_delete(attachment_id, db)
 
 
 # Users
 @app.get(base_url + "users", tags=[users_tag])
 async def users_list(skip: NonNegativeInt = 0, limit: PositiveInt = 20,
                      db: Session = Depends(get_db), user_search: Union[str, None] = None):
-    users = crud.get_users(db, skip=skip, limit=limit, user_search=user_search)
-    return users
+    db_users = users.get_users(db, skip=skip, limit=limit, user_search=user_search)
+    return db_users
 
 
 @app.post(base_url + "users", tags=[users_tag])
 async def user_create(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if user.user_role is None:
         raise HTTPException(status_code=422, detail="Role cannot be empty.")
-    db_user = crud.get_user_by_email(db, email=user.email)
+    db_user = users.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+    return users.create_user(db=db, user=user)
 
 
 @app.get(base_url + "users/{user_id}", tags=[users_tag])
 async def user_view(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
+    db_user = users.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
@@ -226,7 +229,7 @@ async def user_update(user_updated: schemas.User, db: Session = Depends(get_db))
     user_found = db.query(models.User).filter(models.User.user_id == user_updated.user_id).first()
     if user_found is None:
         raise HTTPException(status_code=404, detail="User not found")
-    crud.update_user(user_updated=user_updated, user_found=user_found, db_session=db)
+    users.update_user(user_updated=user_updated, user_found=user_found, db_session=db)
     return user_updated
 
 
@@ -235,18 +238,19 @@ async def user_update_passwd(user_id: int, hashed_password: str, db: Session = D
     user_found = db.query(models.User).filter(models.User.user_id == user_id).first()
     if user_found is None:
         raise HTTPException(status_code=404, detail="User not found")
-    db_user = crud.user_update_passwd(user_id=user_id, user_passwd=hashed_password, db_session=db)
+    db_user = users.user_update_passwd(user_id=user_id, user_passwd=hashed_password, db_session=db)
     return db_user
 
 
 @app.delete(base_url + "users/{user_id}", tags=[users_tag])
 async def user_delete(user_id: int, db: Session = Depends(get_db)):
-    return crud.user_delete(user_id, db)
+    return users.user_delete(user_id, db)
 
 
 @app.get(base_url + "user-roles", tags=[users_tag])
 async def user_roles():
     return enum_to_json(UserRole)
+
 
 """
 @app.post(base_url + "users/{user_id}/token", tags=[users_tag])

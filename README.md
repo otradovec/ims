@@ -4,7 +4,7 @@ This is proof-of-concept for incident management system created for Flowmon Coll
 ## How to run app for development
 1) Go to code directory
 2) Run: source venv/bin/activate
-3) Run: uvicorn src.main:app --reload
+3) Run: uvicorn src.ims_api:app --reload
 
 ## How to run tests
 1) Go to code directory

@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from src.main import app
+from src.ims_api import app
 
 client = TestClient(app)
 base_url = "/ims/rest/"
