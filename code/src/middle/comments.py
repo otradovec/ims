@@ -3,6 +3,7 @@ import datetime
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
+from src.middle import incidents
 from src.middle.FileServerProxy import FileServerProxy
 from src.models import models
 
@@ -17,6 +18,7 @@ def comment_create(incident_id: int, author_id: int, comment_text: str, db: Sess
                              comment_created_at=datetime.datetime.now(),
                              comment_updated_at=datetime.datetime.now())
     db.add(comment)
+    incidents.update_incident_updated_at(incident_id=incident_id, db=db)
     db.commit()
     db.refresh(comment)
     return comment
@@ -32,14 +34,31 @@ def update_comment(comment_text: str, comment_found, db_session: Session):
         "comment_text": comment_text,
         "comment_updated_at": datetime.datetime.now(),
     })
+    incidents.update_incident_updated_at(incident_id=comment_found.incident_id, db=db_session)
     db_session.commit()
     return result
 
 
 def comment_delete(comment_id: int, db: Session):
+    incident_id = get_incident_id_from_comment(comment_id, db)
+    incidents.update_incident_updated_at(incident_id=incident_id, db=db)
     res = db.query(models.Comment).filter(models.Comment.comment_id == comment_id).delete()
     db.commit()
     return res
+
+
+def get_incident_id_from_comment(comment_id: int, db: Session) -> int:
+    comment = db.query(models.Comment).filter(models.Comment.comment_id == comment_id).first()
+    return comment.incident_id
+
+
+def update_comment_updated_at(comment_id: int, db: Session):
+    incident_id = get_incident_id_from_comment(comment_id, db)
+    incidents.update_incident_updated_at(incident_id, db)
+    result = db.query(models.Comment).filter(models.Comment.comment_id == comment_id).update({
+        "comment_updated_at": datetime.datetime.now(),
+    })
+    return result
 
 
 def attachments_list(comment_id: int, db: Session):
@@ -56,6 +75,7 @@ def attachment_create(comment_id: int, contents: bytes, filename: str, content_t
     assert attachment_path is not None and attachment_path, attachment_path
     attachment = models.Attachment(comment_id=comment_id, attachment_path=attachment_path, attachment_name=filename, attachment_content_type=content_type)
     db.add(attachment)
+    update_comment_updated_at(comment_id=comment_id, db=db)
     db.commit()
     db.refresh(attachment)
     return attachment
@@ -75,8 +95,10 @@ def attachment_get(attachment_id, db):
 def attachment_delete(attachment_id: int, db: Session):
     file_proxy = FileServerProxy()
     attachment_db = db.query(models.Attachment).filter(models.Attachment.attachment_id == attachment_id).first()
+    comment_id = attachment_db.comment_id
     attachment_path = attachment_db.attachment_path
     file_proxy.delete(attachment_path)
     res = db.query(models.Attachment).filter(models.Attachment.attachment_id == attachment_id).delete()
+    update_comment_updated_at(comment_id=comment_id, db=db)
     db.commit()
     return res

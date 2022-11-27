@@ -1,4 +1,4 @@
-import json, pytest
+import json, pytest, os
 
 from src.test.end_to_end.test_main import client, base_url
 
@@ -79,3 +79,11 @@ class Helper:
             url=base_url + f"comments?incident_id={incident_id}&author_id={author_id}&comment_text={comment_text}")
         response_json = json.loads(response.text)
         return response_json["comment_id"]
+
+    @classmethod
+    def create_attachment(cls, comment_id, filename):
+        fpath = os.path.join(os.getcwd(), "src", "test", filename)
+        with open(fpath, "rb") as f:
+            response = client.post(base_url + f"attachments?comment_id={comment_id}",
+                                   files={"file": (filename, f, "image/jpeg")})
+        return response.text

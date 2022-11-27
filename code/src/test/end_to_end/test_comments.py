@@ -74,3 +74,14 @@ def test_list_comments():
 
     response = client.get(base_url + f"comments?incident_id={incident_id}&skip=0&limit=-20")
     assert response.status_code == 422, response.text
+
+
+@pytest.mark.order(after="test_read_comments_empty")
+def test_updated_comment_after_updated_attachment():
+    comment_id = Helper.get_comment_id()
+    response = client.get(base_url + f"comments/{comment_id}")
+    comment_updated_at_before = json.loads(response.text)["comment_updated_at"]
+    Helper.create_attachment(comment_id=comment_id, filename="AnomTestImage.png")
+    response = client.get(base_url + f"comments/{comment_id}")
+    comment_updated_at_after = json.loads(response.text)["comment_updated_at"]
+    assert comment_updated_at_before != comment_updated_at_after

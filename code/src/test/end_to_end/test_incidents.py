@@ -62,7 +62,42 @@ def test_incident_states():
     assert response.status_code == 200, response.text
     assert "Reported" in response.text
 
+
 def test_incident_priorities():
     response = client.get(url=base_url + f"incident-priorities")
     assert response.status_code == 200, response.text
     assert "Medium" in response.text
+
+
+@pytest.mark.order(after="test_read_attachments_empty")
+def test_incident_updated_after_changed_comment_text():
+    comment_id = Helper.get_comment_id()
+    response = client.get(base_url + f"comments/{comment_id}")
+    incident_id = json.loads(response.text)["incident_id"]
+
+    response = client.get(base_url + f"incidents/{incident_id}")
+    incident_updated_at_before = json.loads(response.text)["incident_updated_at"]
+
+    client.put(url=base_url + f"comments?comment_id={comment_id}&comment_text=%40Jacob")
+
+    response = client.get(base_url + f"incidents/{incident_id}")
+    incident_updated_at_after = json.loads(response.text)["incident_updated_at"]
+
+    assert incident_updated_at_before != incident_updated_at_after
+    
+    
+@pytest.mark.order(after="test_read_attachments_empty")
+def test_incident_updated_after_changed_comment_attachment():
+    comment_id = Helper.get_comment_id()
+    response = client.get(base_url + f"comments/{comment_id}")
+    incident_id = json.loads(response.text)["incident_id"]
+
+    response = client.get(base_url + f"incidents/{incident_id}")
+    incident_updated_at_before = json.loads(response.text)["incident_updated_at"]
+
+    Helper.create_attachment(comment_id=comment_id, filename="AnomTestImage.png")
+
+    response = client.get(base_url + f"incidents/{incident_id}")
+    incident_updated_at_after = json.loads(response.text)["incident_updated_at"]
+
+    assert incident_updated_at_before != incident_updated_at_after

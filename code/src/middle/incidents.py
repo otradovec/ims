@@ -65,6 +65,13 @@ def update_incident(incident_updated: schemas.IncidentUpdate, incident_found, db
     return result
 
 
+def update_incident_updated_at(incident_id, db):
+    result = db.query(models.Incident).filter(models.Incident.incident_id == incident_id).update({
+        "incident_updated_at": datetime.datetime.now(),
+    })
+    return result
+
+
 def incident_delete(incident_id: int, db: Session):
     res = db.query(models.Incident).filter(models.Incident.incident_id == incident_id).delete()
     db.commit()
