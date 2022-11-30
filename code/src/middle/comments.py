@@ -13,6 +13,10 @@ def comments_list(incident_id: int, skip, limit, db: Session):
         .offset(skip).limit(limit).all()
 
 
+def comments_list_full(incident_id: int, db: Session):
+    return db.query(models.Comment).filter(models.Comment.incident_id == incident_id).all()
+
+
 def comment_create(incident_id: int, author_id: int, comment_text: str, db: Session):
     comment = models.Comment(incident_id=incident_id, author_id=author_id, comment_text=comment_text,
                              comment_created_at=datetime.datetime.now(),

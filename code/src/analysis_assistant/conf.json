@@ -1,0 +1,36 @@
+{
+  "base_Flowmon_url": "https://demo.flowmon.com",
+  "event_detail_url": "/adsplug/events/?_adsLink=tab*Tab.Events.SimpleList%7CeventDetail%5B%5D*",
+  "actions": [
+    {
+      "name": "QoS report",
+      "regex": "QoS",
+      "url": "/ui/reports/b2ba0e0e-c4d7-405d-9646-c00fa9d95310#report"
+    },
+    {
+      "name": "DNS report",
+      "regex": "(DNS)|([Dd]omain)",
+      "url": "/ui/reports/54a5c995-4029-4611-8643-30f92b46d249#report"
+    },
+    {
+      "name": "TLS report",
+      "regex": "(TLS)|(HTTPS)|(SSL)",
+      "url": "/ui/reports/aedf34b6-04a5-456f-b4ac-c1e9cbd1de97#report"
+    },
+    {
+      "name": "MS Office report",
+      "regex": "(Office)|(365)|([Mm]icrosoft)",
+      "url": "/ui/reports/727eaacc-3c61-44f2-a2f8-a302901eca05#report"
+    },
+    {
+      "name": "VoIP traffic analysis",
+      "regex": "[Vv][Oo][Ii][Pp]",
+      "url": "/fmc/voip/"
+    },
+    {
+      "name": "FMC Alerts",
+      "regex": "[Aa]lert",
+      "url": "/fmc/alerts/"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ from fastapi import Depends, FastAPI, HTTPException, UploadFile
 from pydantic.types import NonNegativeInt, PositiveInt
 from sqlalchemy.orm import Session
 
+from src.analysis_assistant.analysis_assistant import Assistant
 from src.middle.IncidentPriority import IncidentPriority
 from src.middle.IncidentStatus import IncidentStatus
 from src.middle.UserRole import UserRole
@@ -22,6 +23,8 @@ connected_events_tag = "Connected Events"
 comments_tag = "Comments"
 users_tag = "Users"
 incident_tag = "Incidents"
+assistant_tag = "Analysis assistant"
+assistant = Assistant()
 
 
 # Dependency
@@ -196,6 +199,14 @@ async def attachment_view(attachment_id: int, db: Session = Depends(get_db)):
 @app.delete(base_url + "attachments/{attachment_id}", tags=[comments_tag])
 async def attachment_delete(attachment_id: int, db: Session = Depends(get_db)):
     return comments.attachment_delete(attachment_id, db)
+
+
+@app.get(base_url + "assistant/{incident_id}", tags=[assistant_tag])
+async def advice_get(incident_id: NonNegativeInt, db: Session = Depends(get_db)):
+    db_incident = incidents.get_incident(db=db, incident_id=incident_id)
+    if db_incident is None:
+        raise HTTPException(status_code=422, detail="Incident not found")
+    return assistant.advice_get(incident_id, db)
 
 
 # Users
