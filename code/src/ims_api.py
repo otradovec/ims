@@ -17,7 +17,7 @@ from src.database.database import SessionLocal, engine
 models.Base.metadata.drop_all(bind=engine)
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(title="IMS REST API documentation")
 base_url = "/ims/rest/"
 connected_events_tag = "Connected Events"
 comments_tag = "Comments"
