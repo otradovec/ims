@@ -105,21 +105,22 @@ async def connected_events_list(incident_id: Union[NonNegativeInt, None] = None,
 
 
 @app.post(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_create(incident_id: NonNegativeInt, event_id: NonNegativeInt, db: Session = Depends(get_db)):
-    existing_connections_list = connected_events.connected_events_list(incident_id, event_id, db)
+async def connected_events_create(connected_event: schemas.ConnectedEvent = Depends(), db: Session = Depends(get_db)):
+    existing_connections_list = connected_events.connected_events_list(connected_event.incident_id,
+                                                                       connected_event.event_id, db)
     if len(existing_connections_list) > 0:
         raise HTTPException(status_code=400, detail="Connection already present")
 
-    incident = incidents.get_incident(db, incident_id)
+    incident = incidents.get_incident(db, connected_event.incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")
 
-    return connected_events.connected_events_create(incident_id, event_id, db)
+    return connected_events.connected_events_create(connected_event, db)
 
 
 @app.delete(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_delete(incident_id: NonNegativeInt, event_id: NonNegativeInt, db: Session = Depends(get_db)):
-    return connected_events.connected_events_delete(incident_id, event_id, db)
+async def connected_events_delete(connected_event: schemas.ConnectedEvent = Depends(), db: Session = Depends(get_db)):
+    return connected_events.connected_events_delete(connected_event, db)
 
 
 @app.get(base_url + "comments", tags=[comments_tag])
@@ -133,17 +134,17 @@ async def comments_list(incident_id: NonNegativeInt, skip: NonNegativeInt = 0, l
 
 
 @app.post(base_url + "comments", tags=[comments_tag])
-async def comment_create(incident_id: NonNegativeInt, author_id: NonNegativeInt, comment_text: str,
+async def comment_create(comment: schemas.CommentCreate = Depends(),
                          db: Session = Depends(get_db)):
-    incident = incidents.get_incident(db, incident_id)
+    incident = incidents.get_incident(db, comment.incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")
 
-    user = users.get_user(db, author_id)
+    user = users.get_user(db, comment.author_id)
     if user is None:
         raise HTTPException(status_code=400, detail="No user with author_id specified")
 
-    return comments.comment_create(incident_id, author_id, comment_text, db)
+    return comments.comment_create(comment, db)
 
 
 @app.get(base_url + "comments/{comment_id}", tags=[comments_tag])

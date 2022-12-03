@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from src.models import models
+from src.schemas import schemas
 
 
 def connected_events_list(incident_id, event_id, db: Session, skip=0, limit=20):
@@ -13,16 +14,16 @@ def connected_events_list(incident_id, event_id, db: Session, skip=0, limit=20):
     return query.offset(skip).limit(limit).all()
 
 
-def connected_events_create(incident_id: int, event_id: int, db: Session):
-    connection = models.EventIncident(incident_id=incident_id, event_id=event_id)
+def connected_events_create(connected_event: schemas.ConnectedEvent, db: Session):
+    connection = models.EventIncident(**connected_event.dict())
     db.add(connection)
     db.commit()
     db.refresh(connection)
     return connection
 
 
-def connected_events_delete(incident_id: int, event_id: int, db: Session):
-    res = db.query(models.EventIncident).filter(models.EventIncident.incident_id == incident_id,
-                                                models.EventIncident.event_id == event_id).delete()
+def connected_events_delete(connected_event: schemas.ConnectedEvent, db: Session):
+    res = db.query(models.EventIncident).filter(models.EventIncident.incident_id == connected_event.incident_id,
+                                                models.EventIncident.event_id == connected_event.event_id).delete()
     db.commit()
     return res

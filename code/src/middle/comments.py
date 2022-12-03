@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from src.middle import incidents
 from src.middle.FileServerProxy import FileServerProxy
 from src.models import models
+from src.schemas import schemas
 
 
 def comments_list(incident_id: int, skip, limit, db: Session):
@@ -17,12 +18,12 @@ def comments_list_full(incident_id: int, db: Session):
     return db.query(models.Comment).filter(models.Comment.incident_id == incident_id).all()
 
 
-def comment_create(incident_id: int, author_id: int, comment_text: str, db: Session):
-    comment = models.Comment(incident_id=incident_id, author_id=author_id, comment_text=comment_text,
+def comment_create(comment: schemas.CommentCreate, db: Session):
+    comment = models.Comment(**comment.dict(),
                              comment_created_at=datetime.datetime.now(),
                              comment_updated_at=datetime.datetime.now())
     db.add(comment)
-    incidents.update_incident_updated_at(incident_id=incident_id, db=db)
+    incidents.update_incident_updated_at(incident_id=comment.incident_id, db=db)
     db.commit()
     db.refresh(comment)
     return comment
