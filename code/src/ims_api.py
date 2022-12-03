@@ -37,8 +37,8 @@ def get_db():
 
 
 @app.get(base_url + "incidents", tags=[incident_tag])
-async def incidents_list(incident_status: IncidentStatus = None, reporter_id: int = None,
-                         resolver_id: int = None, is_opened: Optional[bool] = None,
+async def incidents_list(incident_status: IncidentStatus = None, reporter_id: NonNegativeInt = None,
+                         resolver_id: NonNegativeInt = None, is_opened: Optional[bool] = None,
                          incident_priority: IncidentPriority = None,
                          incident_search: Optional[str] = None, skip: NonNegativeInt = 0,
                          limit: PositiveInt = 20, db: Session = Depends(get_db)
@@ -73,7 +73,7 @@ async def incident_update(incident_updated: schemas.IncidentUpdate, db: Session 
 
 
 @app.get(base_url + "incidents/{incident_id}", tags=[incident_tag])
-async def incident_detail(incident_id: int, db: Session = Depends(get_db)):
+async def incident_detail(incident_id: NonNegativeInt, db: Session = Depends(get_db)):
     db_incident = incidents.get_incident(db, incident_id=incident_id)
     if db_incident is None:
         raise HTTPException(status_code=404, detail="Incident not found")
@@ -81,7 +81,7 @@ async def incident_detail(incident_id: int, db: Session = Depends(get_db)):
 
 
 @app.delete(base_url + "incidents/{incident_id}", tags=[incident_tag])
-async def incident_delete(incident_id: int, db: Session = Depends(get_db)):
+async def incident_delete(incident_id: NonNegativeInt, db: Session = Depends(get_db)):
     return incidents.incident_delete(incident_id, db)
 
 
@@ -96,7 +96,8 @@ async def incident_priorities():
 
 
 @app.get(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_list(incident_id: Union[int, None] = None, event_id: Union[int, None] = None,
+async def connected_events_list(incident_id: Union[NonNegativeInt, None] = None,
+                                event_id: Union[NonNegativeInt, None] = None,
                                 skip: NonNegativeInt = 0, limit: PositiveInt = 20,
                                 db: Session = Depends(get_db)):
     return connected_events.connected_events_list(incident_id=incident_id, event_id=event_id, skip=skip, limit=limit,
@@ -104,7 +105,7 @@ async def connected_events_list(incident_id: Union[int, None] = None, event_id: 
 
 
 @app.post(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_create(incident_id: int, event_id: int, db: Session = Depends(get_db)):
+async def connected_events_create(incident_id: NonNegativeInt, event_id: NonNegativeInt, db: Session = Depends(get_db)):
     existing_connections_list = connected_events.connected_events_list(incident_id, event_id, db)
     if len(existing_connections_list) > 0:
         raise HTTPException(status_code=400, detail="Connection already present")
@@ -117,12 +118,12 @@ async def connected_events_create(incident_id: int, event_id: int, db: Session =
 
 
 @app.delete(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_delete(incident_id: int, event_id: int, db: Session = Depends(get_db)):
+async def connected_events_delete(incident_id: NonNegativeInt, event_id: NonNegativeInt, db: Session = Depends(get_db)):
     return connected_events.connected_events_delete(incident_id, event_id, db)
 
 
 @app.get(base_url + "comments", tags=[comments_tag])
-async def comments_list(incident_id: int, skip: NonNegativeInt = 0, limit: PositiveInt = 20,
+async def comments_list(incident_id: NonNegativeInt, skip: NonNegativeInt = 0, limit: PositiveInt = 20,
                         db: Session = Depends(get_db)):
     incident = incidents.get_incident(db, incident_id)
     if incident is None:
@@ -132,7 +133,8 @@ async def comments_list(incident_id: int, skip: NonNegativeInt = 0, limit: Posit
 
 
 @app.post(base_url + "comments", tags=[comments_tag])
-async def comment_create(incident_id: int, author_id: int, comment_text: str, db: Session = Depends(get_db)):
+async def comment_create(incident_id: NonNegativeInt, author_id: NonNegativeInt, comment_text: str,
+                         db: Session = Depends(get_db)):
     incident = incidents.get_incident(db, incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")
@@ -145,7 +147,7 @@ async def comment_create(incident_id: int, author_id: int, comment_text: str, db
 
 
 @app.get(base_url + "comments/{comment_id}", tags=[comments_tag])
-async def comment_view(comment_id: int, db: Session = Depends(get_db)):
+async def comment_view(comment_id: NonNegativeInt, db: Session = Depends(get_db)):
     db_comment = comments.get_comment(db, comment_id=comment_id)
     if db_comment is None:
         raise HTTPException(status_code=404, detail="Comment not found")
@@ -153,7 +155,7 @@ async def comment_view(comment_id: int, db: Session = Depends(get_db)):
 
 
 @app.put(base_url + "comments", tags=[comments_tag])
-async def comment_update(comment_id: int, comment_text: str, db: Session = Depends(get_db)):
+async def comment_update(comment_id: NonNegativeInt, comment_text: str, db: Session = Depends(get_db)):
     comment_found = db.query(models.Comment).filter(models.Comment.comment_id == comment_id).first()
     if comment_found is None:
         raise HTTPException(status_code=404, detail="Comment not found")
@@ -163,12 +165,12 @@ async def comment_update(comment_id: int, comment_text: str, db: Session = Depen
 
 
 @app.delete(base_url + "comments/{comment_id}", tags=[comments_tag])
-async def comment_delete(comment_id: int, db: Session = Depends(get_db)):
+async def comment_delete(comment_id: NonNegativeInt, db: Session = Depends(get_db)):
     return comments.comment_delete(comment_id, db)
 
 
 @app.get(base_url + "attachments", tags=[comments_tag])
-async def attachments_list(comment_id: int, db: Session = Depends(get_db)):
+async def attachments_list(comment_id: NonNegativeInt, db: Session = Depends(get_db)):
     comment = comments.get_comment(db, comment_id)
     if comment is None:
         raise HTTPException(status_code=400, detail="No comment with comment_id specified")
@@ -177,7 +179,7 @@ async def attachments_list(comment_id: int, db: Session = Depends(get_db)):
 
 
 @app.post(base_url + "attachments", tags=[comments_tag])
-async def attachment_create(comment_id: int, file: UploadFile, db: Session = Depends(get_db)):
+async def attachment_create(comment_id: NonNegativeInt, file: UploadFile, db: Session = Depends(get_db)):
     comment = comments.get_comment(db, comment_id)
     if comment is None:
         raise HTTPException(status_code=400, detail="No comment with comment_id specified")
@@ -189,7 +191,7 @@ async def attachment_create(comment_id: int, file: UploadFile, db: Session = Dep
 
 
 @app.get(base_url + "attachments/{attachment_id}", tags=[comments_tag])
-async def attachment_view(attachment_id: int, db: Session = Depends(get_db)):
+async def attachment_view(attachment_id: NonNegativeInt, db: Session = Depends(get_db)):
     db_attachment = comments.attachment_get(attachment_id=attachment_id, db=db)
     if db_attachment is None:
         raise HTTPException(status_code=404, detail="Attachment not found")
@@ -197,7 +199,7 @@ async def attachment_view(attachment_id: int, db: Session = Depends(get_db)):
 
 
 @app.delete(base_url + "attachments/{attachment_id}", tags=[comments_tag])
-async def attachment_delete(attachment_id: int, db: Session = Depends(get_db)):
+async def attachment_delete(attachment_id: NonNegativeInt, db: Session = Depends(get_db)):
     return comments.attachment_delete(attachment_id, db)
 
 
@@ -228,7 +230,7 @@ async def user_create(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @app.get(base_url + "users/{user_id}", tags=[users_tag])
-async def user_view(user_id: int, db: Session = Depends(get_db)):
+async def user_view(user_id: NonNegativeInt, db: Session = Depends(get_db)):
     db_user = users.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -245,7 +247,7 @@ async def user_update(user_updated: schemas.User, db: Session = Depends(get_db))
 
 
 @app.put(base_url + "users/{user_id}/passwd", tags=[users_tag])
-async def user_update_passwd(user_id: int, hashed_password: str, db: Session = Depends(get_db)):
+async def user_update_passwd(user_id: NonNegativeInt, hashed_password: str, db: Session = Depends(get_db)):
     user_found = db.query(models.User).filter(models.User.user_id == user_id).first()
     if user_found is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -254,7 +256,7 @@ async def user_update_passwd(user_id: int, hashed_password: str, db: Session = D
 
 
 @app.delete(base_url + "users/{user_id}", tags=[users_tag])
-async def user_delete(user_id: int, db: Session = Depends(get_db)):
+async def user_delete(user_id: NonNegativeInt, db: Session = Depends(get_db)):
     return users.user_delete(user_id, db)
 
 
@@ -265,6 +267,6 @@ async def user_roles():
 
 """
 @app.post(base_url + "users/{user_id}/token", tags=[users_tag])
-async def user_token(user_id: int, user_session_cookie: str = Cookie(default=None)):
+async def user_token(user_id: NonNegativeInt, user_session_cookie: str = Cookie(default=None)):
     return {"The ": user_id}
 """

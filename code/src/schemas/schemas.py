@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import Union, Optional
 
 from pydantic import BaseModel
+from pydantic.types import NonNegativeInt
+
 
 from src.middle.IncidentPriority import IncidentPriority
 from src.middle.UserRole import UserRole
@@ -13,15 +15,15 @@ class IncidentBase(BaseModel):
     incident_description: Union[str, None] = None
     incident_status: IncidentStatus = IncidentStatus.reported
     incident_priority: IncidentPriority = IncidentPriority.medium
-    reporter_id: int
-    resolver_id: int
+    reporter_id: NonNegativeInt
+    resolver_id: NonNegativeInt
 
     class Config:
         arbitrary_types_allowed = True
 
 
 class IncidentFull(IncidentBase):
-    incident_id: int
+    incident_id: NonNegativeInt
     incident_created_at: datetime
     incident_updated_at: datetime
 
@@ -30,12 +32,12 @@ class IncidentFull(IncidentBase):
 
 
 class IncidentUpdate(BaseModel):
-    incident_id: int
+    incident_id: NonNegativeInt
     incident_name: str
     incident_description: Union[str, None] = None
     incident_status: IncidentStatus = IncidentStatus.reported
     incident_priority: IncidentPriority = IncidentPriority.medium
-    resolver_id: int
+    resolver_id: NonNegativeInt
     
 
 class UserBase(BaseModel):
@@ -48,7 +50,7 @@ class UserCreate(UserBase):
 
 
 class User(UserBase):
-    user_id: int
+    user_id: NonNegativeInt
     is_active: bool
 
     class Config:
@@ -60,11 +62,11 @@ class CommentBase(BaseModel):
 
 
 class CommentUpdate(CommentBase):
-    comment_id: int
+    comment_id: NonNegativeInt
 
 
 class CommentDetail(CommentUpdate):
     comment_created_at: datetime
     comment_updated_at: datetime
-    author_id: int
-    incident_id: int
+    author_id: NonNegativeInt
+    incident_id: NonNegativeInt
