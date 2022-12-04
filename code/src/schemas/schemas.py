@@ -15,14 +15,17 @@ class IncidentBase(BaseModel):
     incident_description: Union[str, None] = None
     incident_status: IncidentStatus = IncidentStatus.reported
     incident_priority: IncidentPriority = IncidentPriority.medium
-    reporter_id: NonNegativeInt
     resolver_id: NonNegativeInt
 
     class Config:
         arbitrary_types_allowed = True
 
 
-class IncidentFull(IncidentBase):
+class IncidentCreate(IncidentBase):
+    reporter_id: NonNegativeInt
+
+
+class IncidentFull(IncidentCreate):
     incident_id: NonNegativeInt
     incident_created_at: datetime
     incident_updated_at: datetime
@@ -31,14 +34,19 @@ class IncidentFull(IncidentBase):
         orm_mode = True
 
 
-class IncidentUpdate(BaseModel):
+class IncidentUpdate(IncidentBase):
     incident_id: NonNegativeInt
-    incident_name: str
-    incident_description: Union[str, None] = None
-    incident_status: IncidentStatus = IncidentStatus.reported
-    incident_priority: IncidentPriority = IncidentPriority.medium
-    resolver_id: NonNegativeInt
-    
+
+
+# Has to be BaseModel child because of optional attributes
+class IncidentSearch(BaseModel):
+    incident_status: IncidentStatus = None
+    reporter_id: NonNegativeInt = None
+    resolver_id: NonNegativeInt = None
+    is_opened: Optional[bool] = None
+    incident_priority: IncidentPriority = None
+    incident_search: Optional[str] = None
+
 
 class ConnectedEvent(BaseModel):
     incident_id: NonNegativeInt

@@ -37,18 +37,14 @@ def get_db():
 
 
 @app.get(base_url + "incidents", tags=[incident_tag])
-async def incidents_list(incident_status: IncidentStatus = None, reporter_id: NonNegativeInt = None,
-                         resolver_id: NonNegativeInt = None, is_opened: Optional[bool] = None,
-                         incident_priority: IncidentPriority = None,
-                         incident_search: Optional[str] = None, skip: NonNegativeInt = 0,
+async def incidents_list(search_params: schemas.IncidentSearch = Depends(), skip: NonNegativeInt = 0,
                          limit: PositiveInt = 20, db: Session = Depends(get_db)
                          ):
-    return incidents.incident_list(incident_status, reporter_id, resolver_id, is_opened, incident_priority,
-                                   incident_search, skip, limit, db)
+    return incidents.incident_list(**search_params.dict(), skip=skip, limit=limit, db=db)
 
 
 @app.post(base_url + "incidents", tags=[incident_tag])
-async def incident_create(incident: schemas.IncidentBase, db: Session = Depends(get_db)):
+async def incident_create(incident: schemas.IncidentCreate, db: Session = Depends(get_db)):
     db_reporter = users.get_user(db=db, user_id=incident.reporter_id)
     if db_reporter is None:
         raise HTTPException(status_code=400, detail="Reporter not existing")
