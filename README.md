@@ -4,11 +4,11 @@ This is proof-of-concept for incident management system created for Flowmon Coll
 ## How to run app for development
 1) Go to code directory
 2) Run: source venv/bin/activate
-3) Run: uvicorn src.ims_api:app --reload
+3) Run: uvicorn src.endpoints.ims_api:app --reload
 
 ## How to run tests
 1) Go to code directory
 2) Run: source venv/bin/activate
-3) Run: python -m pytest src/test/end_to_end/*
+3) Run: python -m pytest src/test/ -v
 
 
