@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Union, Optional
 
 from pydantic import BaseModel
+from pydantic import Field
 from pydantic.types import NonNegativeInt
 
 
@@ -9,10 +10,15 @@ from src.middle.IncidentPriority import IncidentPriority
 from src.middle.UserRole import UserRole
 from src.middle.IncidentStatus import IncidentStatus
 
+example_incident_description = "Reports devices that communicate with blacklisted IP addresses. This may indicate " \
+                               "that a device is compromised or takes part in malicious activities depending on the " \
+                               "category of the blacklisted IP address. Known botnet C&C center, attempts: 4," \
+                               " uploaded: 22.84 MiB, downloaded: 0 B, frequently used ports: 2048."
+
 
 class IncidentBase(BaseModel):
-    incident_name: str
-    incident_description: Union[str, None] = None
+    incident_name: str = Field(example="Detected communication with blacklisted hosts")
+    incident_description: Union[str, None] = Field(default=None, example=example_incident_description)
     incident_status: IncidentStatus = IncidentStatus.reported
     incident_priority: IncidentPriority = IncidentPriority.medium
     resolver_id: NonNegativeInt
@@ -54,7 +60,7 @@ class ConnectedEvent(BaseModel):
 
 
 class UserBase(BaseModel):
-    email: str
+    email: str = Field(example="henry.ford@redhat.com")
     user_role: UserRole
 
 
@@ -71,7 +77,7 @@ class User(UserBase):
 
 
 class CommentBase(BaseModel):
-    comment_text: Union[str, None] = None
+    comment_text: Union[str, None] = Field(default=None, example="Used protocol is ICMP")
 
 
 class CommentCreate(CommentBase):
