@@ -7,6 +7,6 @@ pytest
 pytest-order
 python-multipart #  For file upload
 "python-jose[cryptography]" #  For JWT
-"passlib[bcrypt]" # For hashing passwords
+"passlib[argon2]" # For hashing passwords
 
 

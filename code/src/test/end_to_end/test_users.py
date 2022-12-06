@@ -17,8 +17,6 @@ def test_read_users_empty_with_search():
 
 @pytest.mark.order("second")
 def test_crud_user():
-    response = client.get(base_url+"users/1")
-    assert response.status_code == 404  # User not yet created
     json_create = {
         "email": "klement@hofbauer.com",
         "user_role": "NetOps",
@@ -26,13 +24,14 @@ def test_crud_user():
     }
     response = client.post(url=base_url + "users", json=json_create)
     assert response.status_code == 200, "User created" + response.text
+    user_id = json.loads(response.text)["user_id"]
 
-    response = client.get(base_url + "users/1")
+    response = client.get(base_url + f"users/{user_id}")
     assert response.status_code == 200, "User detail" + response.text
     assert "klement" in response.text
 
     updated_json = {
-        "user_id": 1,
+        "user_id": user_id,
         "email": "klement@hofbauer.com",
         "user_role": "Manager",
         "is_active": True
@@ -40,10 +39,10 @@ def test_crud_user():
     response = client.put(url=base_url + "users", json=updated_json)
     assert response.status_code == 200, "User updated " + response.text
 
-    response = client.put(url=base_url + "users/1/passwd?hashed_password=anotherpass")
+    response = client.put(url=base_url + f"users/{user_id}/passwd?hashed_password=anotherpass")
     assert response.status_code == 200, "User pass updated " + response.text
 
-    response = client.delete(url=base_url + "users/1")
+    response = client.delete(url=base_url + f"users/{user_id}")
     assert response.status_code == 200, "User deleted " + response.text
 
 

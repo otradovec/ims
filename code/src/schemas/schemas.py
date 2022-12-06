@@ -90,3 +90,11 @@ class CommentDetail(CommentCreate):
     comment_created_at: datetime
     comment_updated_at: datetime
 
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    user_id: Union[int, None] = None

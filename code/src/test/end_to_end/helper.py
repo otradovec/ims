@@ -6,11 +6,13 @@ from src.test.end_to_end.test_main import client, base_url
 class Helper:
     userID1 = userID2 = None
     incidentID1 = commentID1 = None
+    token = None
 
     @classmethod
     def get_user_id(cls) -> int:
         if cls.userID1 is None:
-            user_id = cls.create_user("test@user.com", "NetOps", "secretstring")
+            secret_hash = cls.get_secret()["hash"]
+            user_id = cls.create_user("test@example.com", "NetOps", secret_hash)
             cls.userID1 = user_id
             return user_id
         else:
@@ -25,7 +27,7 @@ class Helper:
         }
         response = client.post(url=base_url + "users", json=json_create)
         if response.status_code != 200:
-            pytest.skip(cls.__name__ + "User failed to ")
+            pytest.fail(f" Test Class: {cls.__name__}:: User failed to be created:: " + str(json_create) + response.text)
         response_json = json.loads(response.text)
         return response_json["user_id"]
 
@@ -87,3 +89,28 @@ class Helper:
             response = client.post(base_url + f"attachments?comment_id={comment_id}",
                                    files={"file": (filename, f, "image/jpeg")})
         return response.text
+
+    @classmethod
+    def get_token(cls) -> str:
+        if cls.token is None:
+            assert cls.get_user_id() is not None
+            user_dict = {
+                "username": "test@example.com",
+                "password": cls.get_secret()["password"]
+            }
+            response = client.post("/token", data=user_dict)
+            assert response.status_code == 200, response.text
+            response_json = json.loads(response.text)
+            cls.token = response_json["access_token"]
+
+        return cls.token
+
+    @classmethod
+    def get_secret(cls):
+        fpath = os.path.join(os.getcwd(), "src", "test", "end_to_end", ".secrets")
+        with open(fpath, "r") as f:
+            lines = f.readlines()
+        lines_str = "\n".join(lines)
+        json_secrets = json.loads(lines_str)
+        secret = json_secrets["secrets"][0]
+        return secret

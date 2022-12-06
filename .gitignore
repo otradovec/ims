@@ -2,3 +2,4 @@ code/venv
 **/__pycache__/
 .idea
 data_storage
+code/src/test/end_to_end/.secrets
