@@ -20,13 +20,15 @@ get_db = dependencies.get_db
 async def connected_events_list(incident_id: Union[NonNegativeInt, None] = None,
                                 event_id: Union[NonNegativeInt, None] = None,
                                 skip: NonNegativeInt = 0, limit: PositiveInt = 20,
-                                db: Session = Depends(get_db)):
+                                db: Session = Depends(get_db),
+                                current_user: schemas.User = Depends(dependencies.get_current_active_user)):
     return connected_events.connected_events_list(incident_id=incident_id, event_id=event_id, skip=skip, limit=limit,
                                                   db=db)
 
 
 @app.post(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_create(connected_event: schemas.ConnectedEvent = Depends(), db: Session = Depends(get_db)):
+async def connected_events_create(connected_event: schemas.ConnectedEvent = Depends(), db: Session = Depends(get_db),
+                                  current_user: schemas.User = Depends(dependencies.get_current_active_user)):
     existing_connections_list = connected_events.connected_events_list(connected_event.incident_id,
                                                                        connected_event.event_id, db)
     if len(existing_connections_list) > 0:
@@ -40,5 +42,6 @@ async def connected_events_create(connected_event: schemas.ConnectedEvent = Depe
 
 
 @app.delete(base_url + "connected-events", tags=[connected_events_tag])
-async def connected_events_delete(connected_event: schemas.ConnectedEvent = Depends(), db: Session = Depends(get_db)):
+async def connected_events_delete(connected_event: schemas.ConnectedEvent = Depends(), db: Session = Depends(get_db),
+                                  current_user: schemas.User = Depends(dependencies.get_current_active_user)):
     return connected_events.connected_events_delete(connected_event, db)

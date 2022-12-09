@@ -29,7 +29,8 @@ base_url = dependencies.base_url
 
 
 @app.get(base_url + "assistant/{incident_id}", tags=[assistant_tag])
-async def advice_get(incident_id: NonNegativeInt, db: Session = Depends(dependencies.get_db), current_user: schemas.User = Depends(dependencies.get_current_active_user)):
+async def advice_get(incident_id: NonNegativeInt, db: Session = Depends(dependencies.get_db),
+                     current_user: schemas.User = Depends(dependencies.get_current_active_user)):
     db_incident = incidents.get_incident(db=db, incident_id=incident_id)
     if db_incident is None:
         raise HTTPException(status_code=422, detail="Incident not found")
