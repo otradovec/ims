@@ -40,11 +40,11 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(db, email: str, password: str):
+def authenticate_user(db, email: str, plaintext_password: str):
     user = users.get_user_by_email(db=db, email=email)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(plaintext_password, user.hashed_password):
         return False
     return user
 
