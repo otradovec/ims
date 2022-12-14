@@ -25,14 +25,14 @@ def test_read_advices_negative_id():
     assert response.status_code == 422, response.text
 
 
-@pytest.mark.order(after="test_crd_attachment")
+@pytest.mark.order(after="test_attachments.py::test_crd_attachment")
 def test_read_advices():
     incident_id = Helper.get_incident_id()
     response = client.get(base_url + f"assistant/{incident_id}", headers=token_header)
     assert response.status_code == 200, response.text
 
 
-@pytest.mark.order(after="test_crd_attachment")
+@pytest.mark.order(after="test_attachments.py::test_crd_attachment")
 def test_read_advices_voip():
     incident_json = {
         "incident_name": "Unexpected VoIP",

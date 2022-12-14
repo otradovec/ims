@@ -27,12 +27,23 @@ def test_read_comments_non_existing_incident():
     assert response.status_code == 400, response.text
 
 
+@pytest.mark.order(before="test_crud_comment")
+def test_create_comment_unauth():
+    created_user_id = Helper.get_user_id()
+    incident_id = Helper.get_incident_id()
+
+    url = base_url + f"comments?incident_id={incident_id}&author_id={created_user_id}&comment_text=@RayTussen"
+    response = client.post(url=url, headers={})
+    assert response.status_code == 401, response.text
+
+
 @pytest.mark.order("fourth")
 def test_crud_comment():
     created_user_id = Helper.get_user_id()
     incident_id = Helper.get_incident_id()
 
-    response = client.post(url=base_url + f"comments?incident_id={incident_id}&author_id={created_user_id}&comment_text=%40RayTussen")
+    url = base_url + f"comments?incident_id={incident_id}&author_id={created_user_id}&comment_text=@RayTussen"
+    response = client.post(url=url, headers=header)
     assert response.status_code == 200, response.text  # Comment created
     comment_id = json.loads(response.text)["comment_id"]
 
@@ -40,7 +51,7 @@ def test_crud_comment():
     assert response.status_code == 200, response.text  # Comment detail
     assert "RayTussen" in response.text
 
-    response = client.put(url=base_url + f"comments?comment_id={comment_id}&comment_text=%40StevenSmith")
+    response = client.put(url=base_url + f"comments?comment_id={comment_id}&comment_text=@StevenSmith")
     assert response.status_code == 200, "Comment updated " + response.text
 
     response = client.get(base_url + f"comments/{comment_id}")
@@ -60,13 +71,16 @@ def test_bad_create_comment_request():
     created_user_id = Helper.get_user_id()
     incident_id = Helper.get_incident_id()
 
-    response = client.post(url=base_url + f"comments?incident_id=8888888&author_id={created_user_id}&comment_text=%40RayTussen")
+    url_bad_incident_id = base_url + f"comments?incident_id=8888888&author_id={created_user_id}&comment_text=%40RayTussen"
+    response = client.post(url=url_bad_incident_id, headers=header)
     assert response.status_code == 400, response.text  # Comment not created
 
-    response = client.post(url=base_url + f"comments?incident_id={incident_id}&author_id=88888888&comment_text=%40RayTussen")
+    url_bad_author_id = base_url + f"comments?incident_id={incident_id}&author_id=88888888&comment_text=%40RayTussen"
+    response = client.post(url=url_bad_author_id, headers=header)
     assert response.status_code == 400, response.text  # Comment not created
 
-    response = client.post(url=base_url + f"comments?incident_id=8888888&author_id=888888&comment_text=%40RayTussen")
+    url_bad_both_ids = base_url + f"comments?incident_id=8888888&author_id=888888&comment_text=%40RayTussen"
+    response = client.post(url=url_bad_both_ids, headers=header)
     assert response.status_code == 400, response.text  # Comment not created
 
 

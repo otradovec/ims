@@ -25,7 +25,8 @@ async def comments_list(incident_id: NonNegativeInt, skip: NonNegativeInt = 0, l
 
 
 @app.post(base_url + "comments", tags=[comments_tag])
-async def comment_create(comment: schemas.CommentCreate = Depends(), db: Session = Depends(dependencies.get_db)):
+async def comment_create(comment: schemas.CommentCreate = Depends(), commons: BasicCommons = Depends(BasicCommons)):
+    db = commons.db
     incident = incidents.get_incident(db, comment.incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")

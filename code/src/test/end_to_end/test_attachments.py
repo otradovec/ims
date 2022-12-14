@@ -4,7 +4,7 @@ from src.test.end_to_end.helper import Helper
 from src.test.end_to_end.test_main import client, base_url
 
 
-@pytest.mark.order("fourth")
+@pytest.mark.order(after='test_crud_comment')
 def test_read_attachments_empty():
     comment_id = Helper.get_comment_id()
     response = client.get(base_url + f"attachments?comment_id={comment_id}")

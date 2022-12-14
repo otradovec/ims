@@ -66,7 +66,7 @@ class Helper:
     @classmethod
     def get_comment_id(cls):
         if cls.commentID1 is not None:
-            return cls.incidentID1
+            return cls.commentID1
         else:
             author_id = cls.get_user_id()
             incident_id = cls.get_incident_id()
@@ -77,8 +77,8 @@ class Helper:
 
     @classmethod
     def create_comment(cls, incident_id, author_id, comment_text) -> int:
-        response = client.post(
-            url=base_url + f"comments?incident_id={incident_id}&author_id={author_id}&comment_text={comment_text}")
+        url = base_url + f"comments?incident_id={incident_id}&author_id={author_id}&comment_text={comment_text}"
+        response = client.post(url=url, headers=cls.get_header_with_token())
         response_json = json.loads(response.text)
         return response_json["comment_id"]
 
