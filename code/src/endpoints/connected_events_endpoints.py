@@ -3,7 +3,6 @@ from typing import Union
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException
 from pydantic.types import NonNegativeInt, PositiveInt
-from sqlalchemy.orm import Session
 
 from src.middle import connected_events, incidents
 from src.schemas import schemas

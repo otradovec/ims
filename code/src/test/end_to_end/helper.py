@@ -106,6 +106,11 @@ class Helper:
         return cls.token
 
     @classmethod
+    def get_header_with_token(cls) -> dict:
+        token = cls.get_token()
+        return {"Authorization": "Bearer " + token}
+
+    @classmethod
     def get_secret(cls):
         fpath = os.path.join(os.getcwd(), "src", "test", "end_to_end", ".secrets")
         with open(fpath, "r") as f:

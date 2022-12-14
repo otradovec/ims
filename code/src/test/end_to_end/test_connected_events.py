@@ -3,8 +3,7 @@ import pytest
 from src.test.end_to_end.helper import Helper
 from src.test.end_to_end.test_main import client, base_url
 
-token = Helper.get_token()
-token_header = {"Authorization": "Bearer " + token}
+token_header = Helper.get_header_with_token()
 
 
 def test_read_connected_events_unauthorized():

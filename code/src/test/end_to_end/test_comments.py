@@ -1,19 +1,29 @@
-import pytest, json
+import json
+import pytest
 
 from src.test.end_to_end.helper import Helper
 from src.test.end_to_end.test_main import client, base_url
+
+header = Helper.get_header_with_token()
+
+
+@pytest.mark.order("third")
+def test_read_comments_empty_not_auth():
+    incident_id = Helper.get_incident_id()
+    response = client.get(base_url + f"comments?incident_id={incident_id}")
+    assert response.status_code == 401, response.text
 
 
 @pytest.mark.order("third")
 def test_read_comments_empty():
     incident_id = Helper.get_incident_id()
-    response = client.get(base_url + f"comments?incident_id={incident_id}")
+    response = client.get(base_url + f"comments?incident_id={incident_id}", headers=header)
     assert response.status_code == 200, response.text
 
 
 @pytest.mark.order("first")
 def test_read_comments_non_existing_incident():
-    response = client.get(base_url + "comments?incident_id=888888")
+    response = client.get(base_url + "comments?incident_id=888888", headers=header)
     assert response.status_code == 400, response.text
 
 
@@ -63,16 +73,16 @@ def test_bad_create_comment_request():
 @pytest.mark.order("fourth")
 def test_list_comments():
     incident_id = Helper.get_incident_id()
-    response = client.get(base_url + f"comments?incident_id={incident_id}")
+    response = client.get(base_url + f"comments?incident_id={incident_id}", headers=header)
     assert response.status_code == 200, response.text
 
-    response = client.get(base_url + f"comments?incident_id={incident_id}&skip=0&limit=20")
+    response = client.get(base_url + f"comments?incident_id={incident_id}&skip=0&limit=20", headers=header)
     assert response.status_code == 200, response.text
 
-    response = client.get(base_url + f"comments?incident_id={incident_id}&skip=-5&limit=20")
+    response = client.get(base_url + f"comments?incident_id={incident_id}&skip=-5&limit=20", headers=header)
     assert response.status_code == 422, response.text
 
-    response = client.get(base_url + f"comments?incident_id={incident_id}&skip=0&limit=-20")
+    response = client.get(base_url + f"comments?incident_id={incident_id}&skip=0&limit=-20", headers=header)
     assert response.status_code == 422, response.text
 
 

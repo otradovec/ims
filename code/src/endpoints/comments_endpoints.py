@@ -6,6 +6,7 @@ from src.middle import comments, incidents, users
 from src.models import models
 from src.schemas import schemas
 from src.endpoints import dependencies
+from src.endpoints.dependencies import BasicCommons
 
 comments_tag = "Comments"
 app = APIRouter()
@@ -15,12 +16,12 @@ get_db = dependencies.get_db
 
 @app.get(base_url + "comments", tags=[comments_tag])
 async def comments_list(incident_id: NonNegativeInt, skip: NonNegativeInt = 0, limit: PositiveInt = 20,
-                        db: Session = Depends(dependencies.get_db)):
-    incident = incidents.get_incident(db, incident_id)
+                        commons: BasicCommons = Depends(BasicCommons)):
+    incident = incidents.get_incident(commons.db, incident_id)
     if incident is None:
         raise HTTPException(status_code=400, detail="No incident with incident_id")
 
-    return comments.comments_list(incident_id, skip, limit, db)
+    return comments.comments_list(incident_id, skip, limit, commons.db)
 
 
 @app.post(base_url + "comments", tags=[comments_tag])
