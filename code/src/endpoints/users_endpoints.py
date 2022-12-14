@@ -69,8 +69,3 @@ async def user_delete(user_id: NonNegativeInt, db: Session = Depends(dependencie
 async def user_roles():
     return enum_to_json(UserRole)
 
-"""
-@app.post(base_url + "users/{user_id}/token", tags=[users_tag])
-async def user_token(user_id: NonNegativeInt, user_session_cookie: str = Cookie(default=None)):
-    return {"The ": user_id}
-"""

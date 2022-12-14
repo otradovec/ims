@@ -86,3 +86,9 @@ async def get_current_active_user(current_user: schemas.User = Depends(get_curre
     return current_user
 
 
+class BasicCommons:
+    def __init__(self,
+                 db: Session = Depends(get_db),
+                 current_user: schemas.User = Depends(get_current_active_user)):
+        self.db = db
+        self.current_user = current_user
