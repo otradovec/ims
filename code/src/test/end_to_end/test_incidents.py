@@ -69,7 +69,7 @@ def test_incident_priorities():
     assert "Medium" in response.text
 
 
-@pytest.mark.order(after="test_read_attachments_empty")
+@pytest.mark.order(after="test_attachments.py::test_read_attachments_empty")
 def test_incident_updated_after_changed_comment_text():
     comment_id = Helper.get_comment_id()
     response = client.get(base_url + f"comments/{comment_id}")
