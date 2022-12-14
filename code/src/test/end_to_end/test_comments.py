@@ -37,6 +37,24 @@ def test_create_comment_unauth():
     assert response.status_code == 401, response.text
 
 
+@pytest.mark.order(before="test_crud_comment")
+def test_view_comment_unauth():
+    response = client.get(base_url + f"comments/123")
+    assert response.status_code == 401, response.text
+
+
+@pytest.mark.order(before="test_crud_comment")
+def test_update_comment_unauth():
+    response = client.put(url=base_url + f"comments?comment_id=123&comment_text=@StevenSmith")
+    assert response.status_code == 401, response.text
+
+
+@pytest.mark.order(before="test_crud_comment")
+def test_delete_comment_unauth():
+    response = client.delete(url=base_url + f"comments/123")
+    assert response.status_code == 401, response.text
+
+
 @pytest.mark.order("fourth")
 def test_crud_comment():
     created_user_id = Helper.get_user_id()
@@ -47,21 +65,21 @@ def test_crud_comment():
     assert response.status_code == 200, response.text  # Comment created
     comment_id = json.loads(response.text)["comment_id"]
 
-    response = client.get(base_url + f"comments/{comment_id}")
+    response = client.get(base_url + f"comments/{comment_id}", headers=header)
     assert response.status_code == 200, response.text  # Comment detail
     assert "RayTussen" in response.text
 
-    response = client.put(url=base_url + f"comments?comment_id={comment_id}&comment_text=@StevenSmith")
+    response = client.put(url=base_url + f"comments?comment_id={comment_id}&comment_text=@StevenSmith", headers=header)
     assert response.status_code == 200, "Comment updated " + response.text
 
-    response = client.get(base_url + f"comments/{comment_id}")
+    response = client.get(base_url + f"comments/{comment_id}", headers=header)
     assert response.status_code == 200, response.text  # Comment detail updated
     assert "StevenSmith" in response.text
 
-    response = client.delete(url=base_url + f"comments/{comment_id}")
+    response = client.delete(url=base_url + f"comments/{comment_id}", headers=header)
     assert response.status_code == 200, "Comment deleted " + response.text
 
-    response = client.get(base_url + f"comments/{comment_id}")
+    response = client.get(base_url + f"comments/{comment_id}", headers=header)
     assert response.status_code == 404, response.text  # Comment detail not present
     assert "StevenSmith" not in response.text
 
@@ -103,9 +121,9 @@ def test_list_comments():
 @pytest.mark.order(after="test_read_comments_empty")
 def test_updated_comment_after_updated_attachment():
     comment_id = Helper.get_comment_id()
-    response = client.get(base_url + f"comments/{comment_id}")
+    response = client.get(base_url + f"comments/{comment_id}", headers=header)
     comment_updated_at_before = json.loads(response.text)["comment_updated_at"]
     Helper.create_attachment(comment_id=comment_id, filename="AnomTestImage.png")
-    response = client.get(base_url + f"comments/{comment_id}")
+    response = client.get(base_url + f"comments/{comment_id}", headers=header)
     comment_updated_at_after = json.loads(response.text)["comment_updated_at"]
     assert comment_updated_at_before != comment_updated_at_after

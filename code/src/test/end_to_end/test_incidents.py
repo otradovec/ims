@@ -2,6 +2,7 @@ import json, pytest
 
 from src.test.end_to_end.helper import Helper
 from src.test.end_to_end.test_main import client, base_url
+header = Helper.get_header_with_token()
 
 
 @pytest.mark.order("first")
@@ -72,15 +73,15 @@ def test_incident_priorities():
 @pytest.mark.order(after="test_attachments.py::test_read_attachments_empty")
 def test_incident_updated_after_changed_comment_text():
     comment_id = Helper.get_comment_id()
-    response = client.get(base_url + f"comments/{comment_id}")
+    response = client.get(base_url + f"comments/{comment_id}", headers=header)
     incident_id = json.loads(response.text)["incident_id"]
 
-    response = client.get(base_url + f"incidents/{incident_id}")
+    response = client.get(base_url + f"incidents/{incident_id}", headers=header)
     incident_updated_at_before = json.loads(response.text)["incident_updated_at"]
 
-    client.put(url=base_url + f"comments?comment_id={comment_id}&comment_text=%40Jacob")
+    client.put(url=base_url + f"comments?comment_id={comment_id}&comment_text=%40Jacob", headers=header)
 
-    response = client.get(base_url + f"incidents/{incident_id}")
+    response = client.get(base_url + f"incidents/{incident_id}", headers=header)
     incident_updated_at_after = json.loads(response.text)["incident_updated_at"]
 
     assert incident_updated_at_before != incident_updated_at_after
@@ -89,15 +90,15 @@ def test_incident_updated_after_changed_comment_text():
 @pytest.mark.order(after="test_read_attachments_empty")
 def test_incident_updated_after_changed_comment_attachment():
     comment_id = Helper.get_comment_id()
-    response = client.get(base_url + f"comments/{comment_id}")
+    response = client.get(base_url + f"comments/{comment_id}", headers=header)
     incident_id = json.loads(response.text)["incident_id"]
 
-    response = client.get(base_url + f"incidents/{incident_id}")
+    response = client.get(base_url + f"incidents/{incident_id}", headers=header)
     incident_updated_at_before = json.loads(response.text)["incident_updated_at"]
 
     Helper.create_attachment(comment_id=comment_id, filename="AnomTestImage.png")
 
-    response = client.get(base_url + f"incidents/{incident_id}")
+    response = client.get(base_url + f"incidents/{incident_id}", headers=header)
     incident_updated_at_after = json.loads(response.text)["incident_updated_at"]
 
     assert incident_updated_at_before != incident_updated_at_after

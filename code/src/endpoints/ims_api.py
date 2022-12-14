@@ -9,7 +9,7 @@ from src.middle import incidents, users, UserRole
 from src.models import models
 from src.schemas import schemas
 from src.database.database import engine
-from src.endpoints import dependencies, login_endpoints
+from src.endpoints import dependencies, login_endpoints, attachment_endpoints
 from src.endpoints import incident_endpoints, connected_events_endpoints, comments_endpoints, users_endpoints
 
 models.Base.metadata.drop_all(bind=engine)
@@ -32,6 +32,7 @@ app.add_middleware(
 app.include_router(incident_endpoints.app)
 app.include_router(connected_events_endpoints.app)
 app.include_router(comments_endpoints.app)
+app.include_router(attachment_endpoints.app)
 app.include_router(users_endpoints.app)
 app.include_router(login_endpoints.app)
 
