@@ -10,7 +10,6 @@ from src.endpoints.dependencies import BasicCommons
 comments_tag = "Comments"
 app = APIRouter()
 base_url = dependencies.base_url
-get_db = dependencies.get_db
 
 
 @app.get(base_url + "comments", tags=[comments_tag])

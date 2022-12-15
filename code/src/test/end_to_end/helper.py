@@ -59,7 +59,7 @@ class Helper:
 
     @classmethod
     def create_incident(cls, json_create):
-        response = client.post(url=base_url + "incidents", json=json_create)
+        response = client.post(url=base_url + "incidents", json=json_create, headers=cls.get_header_with_token())
         response_json = json.loads(response.text)
         return response_json["incident_id"]
 
