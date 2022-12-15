@@ -41,6 +41,11 @@ def test_connected_events_delete_unauthorized():
     assert response.status_code == 401, response.text
 
 
+def test_connected_events_delete_not_present():
+    response = client.delete(url=base_url + f"connected-events?incident_id=888888&event_id=88888", headers=token_header)
+    assert response.status_code == 200, response.text
+
+
 def test_basic_connected_events_crd():
     incident_id = Helper.get_incident_id()
     event_id = 20455

@@ -15,7 +15,6 @@ from src.endpoints.dependencies import BasicCommons, get_current_active_user
 app = APIRouter()
 incident_tag = "Incidents"
 base_url = dependencies.base_url
-get_db = dependencies.get_db
 
 
 @app.get(base_url + "incidents", tags=[incident_tag])

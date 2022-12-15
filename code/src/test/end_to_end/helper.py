@@ -87,7 +87,7 @@ class Helper:
         fpath = os.path.join(os.getcwd(), "src", "test", filename)
         with open(fpath, "rb") as f:
             response = client.post(base_url + f"attachments?comment_id={comment_id}",
-                                   files={"file": (filename, f, "image/jpeg")})
+                                   files={"file": (filename, f, "image/jpeg")}, headers=cls.get_header_with_token())
         return response.text
 
     @classmethod

@@ -12,7 +12,6 @@ from src.endpoints.dependencies import BasicCommons
 app = APIRouter()
 base_url = dependencies.base_url
 connected_events_tag = "Connected Events"
-get_db = dependencies.get_db
 
 
 @app.get(base_url + "connected-events", tags=[connected_events_tag])

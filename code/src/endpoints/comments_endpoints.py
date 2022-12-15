@@ -57,4 +57,8 @@ async def comment_update(comment_id: NonNegativeInt, comment_text: str, commons:
 
 @app.delete(base_url + "comments/{comment_id}", tags=[comments_tag])
 async def comment_delete(comment_id: NonNegativeInt, commons: BasicCommons = Depends(BasicCommons)):
-    return comments.comment_delete(comment_id, commons.db)
+    db_comment = comments.get_comment(commons.db, comment_id=comment_id)
+    if db_comment is None:
+        return "Comment not found"
+    else:
+        return comments.comment_delete(comment_id, commons.db)

@@ -46,6 +46,12 @@ def test_crud_user():
     assert response.status_code == 200, "User deleted " + response.text
 
 
+@pytest.mark.order(after="test_crud_user")
+def test_user_delete_not_present():
+    response = client.delete(url=base_url + f"users/888888")
+    assert response.status_code == 200, "User deleted " + response.text
+
+
 @pytest.mark.order("third")
 def test_user_list():
     user_id = Helper.get_user_id()

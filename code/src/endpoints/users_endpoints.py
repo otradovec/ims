@@ -14,7 +14,6 @@ from src.endpoints import dependencies
 users_tag = "Users"
 app = APIRouter()
 base_url = dependencies.base_url
-get_db = dependencies.get_db
 
 
 @app.get(base_url + "users", tags=[users_tag])
