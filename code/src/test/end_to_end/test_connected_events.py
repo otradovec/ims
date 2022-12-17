@@ -11,7 +11,7 @@ def test_read_connected_events_unauthorized():
     assert response.status_code == 401, response.text
 
 
-@pytest.mark.order("first")
+@pytest.mark.order(before="test_basic_connected_events_crd")
 def test_read_connected_events_empty():
     response = client.get(base_url + "connected-events", headers=token_header)
     assert response.status_code == 200, response.text

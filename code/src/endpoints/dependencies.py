@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Union
+from typing import Union, Generator
 from secrets import token_bytes
 from base64 import b64encode
 

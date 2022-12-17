@@ -4,7 +4,6 @@ from sqlalchemy.types import DateTime
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from src.middle import IncidentStatus
-from src.middle.UserRole import UserRole
 
 Base = declarative_base()
 

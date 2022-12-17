@@ -10,14 +10,14 @@ params200 = "header, expected, ", [("", 401), (good_header, 200)]
 params404 = "header, expected, ", [("", 401), (good_header, 404)]
 
 
-@pytest.mark.order("first")
+@pytest.mark.order(before="test_crud_incident")
 @pytest.mark.parametrize(*params200)
 def test_read_incidents_empty(header, expected):
     response = client.get(base_url + "incidents?skip=0&limit=20", headers=header)
     assert response.status_code == expected, "Empty incidents list"
 
 
-@pytest.mark.order("first")
+@pytest.mark.order(before="test_crud_incident")
 @pytest.mark.parametrize(*params200)
 def test_read_incidents_empty_all_params(header, expected):
     url = base_url + "incidents?incident_id=1&incident_status=Reported&reporter_id=1&resolver_id=1&is_opened=true" \
@@ -26,7 +26,7 @@ def test_read_incidents_empty_all_params(header, expected):
     assert response.status_code == expected, "Empty incidents list"
 
 
-@pytest.mark.order("first")
+@pytest.mark.order(before="test_crud_incident")
 @pytest.mark.parametrize(*params404)
 def test_read_non_existing_incident(header, expected):
     response = client.get(base_url + "incidents/8888888", headers=header)

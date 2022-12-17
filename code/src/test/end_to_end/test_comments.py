@@ -16,7 +16,7 @@ def test_read_comments_empty(header, expected):
     assert response.status_code == expected, response.text
 
 
-@pytest.mark.order("first")
+@pytest.mark.order(before="test_crud_comment")
 def test_read_comments_non_existing_incident():
     response = client.get(base_url + "comments?incident_id=888888", headers=good_header)
     assert response.status_code == 400, response.text

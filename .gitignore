@@ -3,3 +3,4 @@ code/venv
 .idea
 data_storage
 code/src/test/end_to_end/.secrets
+code/testsqlite.db

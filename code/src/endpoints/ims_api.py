@@ -12,9 +12,6 @@ from src.database.database import engine
 from src.endpoints import dependencies, login_endpoints, attachment_endpoints
 from src.endpoints import incident_endpoints, connected_events_endpoints, comments_endpoints, users_endpoints
 
-models.Base.metadata.drop_all(bind=engine)
-models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI(title="IMS REST API documentation")
 
 origins = {
@@ -40,6 +37,19 @@ app.include_router(login_endpoints.app)
 assistant_tag = "Analysis assistant"
 assistant = Assistant()
 base_url = dependencies.base_url
+
+
+@app.on_event("startup")
+def setup():
+    session = dependencies.SessionLocal()
+    try:
+        fill_db(session)
+    finally:
+        session.close()
+
+
+def fill_db(session: Session):
+    users.create_superuser(session)
 
 
 @app.get(base_url + "assistant/{incident_id}", tags=[assistant_tag])
