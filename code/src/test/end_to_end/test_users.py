@@ -58,6 +58,41 @@ def test_crud_user():
 
 
 @pytest.mark.order(after="test_crud_user")
+def test_user_change_password():
+    header = admin_header
+    user_email = "test_user_change_password@example.com"
+    json_create = {
+        "email": user_email,
+        "user_role": "NetOps",
+        "hashed_password":
+            "$argon2id$v=19$m=2097152,t=1,p=4$I6TUOqcU4vxfK+Xc+3+P8Q$HnFc2LT6sC47yy/SJk6L56Fsi31wqiCUUClZ8WuX4CQ"
+    }
+    response = client.post(url=base_url + "users", json=json_create, headers=header)
+    user_id = json.loads(response.text)["user_id"]
+
+    new_password = 'newstring'
+    new_hash = '$argon2id$v=19$m=2097152,t=1,p=4$j1HKGeOccy6l9H5vrbXWmg$I7kFmSw82dk2GSffhvD5e97253nWJm7CcFgjynIvJLg'
+    response = client.put(url=base_url + f"users/{user_id}/passwd?hashed_password={new_hash}", headers=header)
+    assert response.status_code == 200, response.text
+
+    user_dict = {
+        "username": user_email,
+        "password": new_password
+    }
+    response = client.post(url="login/", json=user_dict)
+    assert response.status_code == 200, response.text
+
+
+@pytest.mark.order(after="test_crud_user")
+@pytest.mark.parametrize("header, expected, ", [("", 401), (good_header, 401)])
+def test_user_change_password_not_auth(header, expected):
+    user_id = Helper.get_user_id()
+    new_hash = '$argon2id$v=19$m=2097152,t=1,p=4$j1HKGeOccy6l9H5vrbXWmg$I7kFmSw82dk2GSffhvD5e97253nWJm7CcFgjynIvJLg'
+    response = client.put(url=base_url + f"users/{user_id}/passwd?hashed_password={new_hash}", headers=header)
+    assert response.status_code == expected, response.text
+
+
+@pytest.mark.order(after="test_crud_user")
 @pytest.mark.parametrize(*params200admin)
 def test_user_create(header, expected):
     json_create = {

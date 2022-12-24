@@ -56,10 +56,9 @@ def update_user(user_updated: schemas.User, user_found: schemas.User, db_session
     return result
 
 
-def user_update_passwd(user_id, user_passwd, db_session):
-    fake_hashed_password = user_passwd + "notreallyhashed"
+def user_update_passwd(user_id, hashed_password, db_session):
     result = db_session.query(models.User).filter(models.User.user_id == user_id).update({
-        "hashed_password": fake_hashed_password,
+        "hashed_password": hashed_password,
     })
     db_session.commit()
     return result

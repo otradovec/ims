@@ -55,11 +55,15 @@ async def user_update(user_updated: schemas.User, commons: BasicCommons = Depend
 
 
 @app.put(base_url + "users/{user_id}/passwd", tags=[users_tag])
-async def user_update_passwd(user_id: NonNegativeInt, hashed_password: str, db: Session = Depends(dependencies.get_db)):
+async def user_update_passwd(user_id: NonNegativeInt, hashed_password: str, commons: BasicCommons = Depends(BasicCommons)):
+    db = commons.db
     user_found = db.query(models.User).filter(models.User.user_id == user_id).first()
     if user_found is None:
         raise HTTPException(status_code=404, detail="User not found")
-    db_user = users.user_update_passwd(user_id=user_id, user_passwd=hashed_password, db_session=db)
+    requester = commons.current_user
+    if requester.user_role is not int(UserRole.superuser):
+        raise HTTPException(status_code=401, detail="User not admin")
+    db_user = users.user_update_passwd(user_id=user_id, hashed_password=hashed_password, db_session=db)
     return db_user
 
 
