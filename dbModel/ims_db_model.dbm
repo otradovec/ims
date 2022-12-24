@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.1" last-position="0,70" last-zoom="0.8"
+<dbmodel pgmodeler-ver="0.9.1" last-position="92,116" last-zoom="0.9"
 	 default-schema="public" default-owner="postgres">
 <database name="new_database" is-template="false" allow-conns="true">
 </database>
@@ -15,7 +15,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<role name="postgres"/>
 </schema>
 
-<table name="incident">
+<table name="incidents" hide-ext-attribs="true">
 	<schema name="ims"/>
 	<role name="postgres"/>
 	<appended-sql><![CDATA[INSERT INTO ims.incident (incident_name,incident_description,incident_created_at,incident_updated_at,incident_priority,reporter_id,resolver_id,incident_status) 
@@ -23,13 +23,13 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 1,1,1,1);]]></appended-sql>
 	<position x="420" y="280"/>
 	<column name="incident_id" not-null="true" identity-type="ALWAYS">
-		<type name="bigint" length="0"/>
+		<type name="integer" length="0"/>
 	</column>
 	<column name="incident_name" not-null="true">
-		<type name="varchar" length="100"/>
+		<type name="varchar" length="0"/>
 	</column>
 	<column name="incident_description">
-		<type name="text" length="15000"/>
+		<type name="varchar" length="0"/>
 	</column>
 	<column name="incident_created_at" not-null="true" default-value="NOW()::timestamptz">
 		<type name="timestamptz" length="0"/>
@@ -43,7 +43,7 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 	<column name="incident_status" not-null="true" default-value="0">
 		<type name="smallint" length="0"/>
 	</column>
-	<constraint name="incident_pk" type="pk-constr" table="ims.incident">
+	<constraint name="incident_pk" type="pk-constr" table="ims.incidents">
 		<columns names="incident_id" ref-type="src-columns"/>
 	</constraint>
 
@@ -53,17 +53,17 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 	</customidxs>
 
 	<customidxs object-type="constraint">
-		<object name="user_fk" index="1"/>
-		<object name="user_fk1" index="2"/>
+		<object name="users_fk" index="1"/>
+		<object name="users_fk1" index="2"/>
 	</customidxs>
 </table>
 
-<table name="user">
+<table name="users" hide-ext-attribs="true">
 	<schema name="ims"/>
 	<role name="postgres"/>
-	<position x="1000" y="540"/>
+	<position x="960" y="480"/>
 	<column name="user_id" not-null="true" identity-type="ALWAYS">
-		<type name="smallint" length="0"/>
+		<type name="integer" length="0"/>
 	</column>
 	<column name="user_role">
 		<type name="smallint" length="0"/>
@@ -71,15 +71,21 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 	<column name="user_email" not-null="true">
 		<type name="varchar" length="320"/>
 	</column>
-	<constraint name="user_pk" type="pk-constr" table="ims.&quot;user&quot;">
+	<column name="is_active" not-null="true">
+		<type name="boolean" length="0"/>
+	</column>
+	<column name="hashed_password">
+		<type name="varchar" length="0"/>
+	</column>
+	<constraint name="user_pk" type="pk-constr" table="ims.users">
 		<columns names="user_id" ref-type="src-columns"/>
 	</constraint>
 </table>
 
-<table name="comment">
+<table name="comments" hide-ext-attribs="true">
 	<schema name="ims"/>
 	<role name="postgres"/>
-	<position x="420" y="680"/>
+	<position x="420" y="700"/>
 	<column name="comment_id" not-null="true" identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
 	</column>
@@ -90,9 +96,9 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 		<type name="timestamptz" length="0"/>
 	</column>
 	<column name="comment_text">
-		<type name="text" length="1000"/>
+		<type name="varchar" length="0"/>
 	</column>
-	<constraint name="comment_pk" type="pk-constr" table="ims.comment">
+	<constraint name="comment_pk" type="pk-constr" table="ims.comments">
 		<columns names="comment_id" ref-type="src-columns"/>
 	</constraint>
 
@@ -102,22 +108,28 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 	</customidxs>
 
 	<customidxs object-type="constraint">
-		<object name="incident_fk" index="1"/>
-		<object name="user_fk" index="2"/>
+		<object name="incidents_fk" index="1"/>
+		<object name="users_fk" index="2"/>
 	</customidxs>
 </table>
 
-<table name="attachment">
+<table name="attachments" hide-ext-attribs="true">
 	<schema name="ims"/>
 	<role name="postgres"/>
-	<position x="980" y="760"/>
+	<position x="980" y="720"/>
 	<column name="attachment_id" not-null="true" identity-type="ALWAYS">
 		<type name="bigint" length="0"/>
 	</column>
 	<column name="attachment_path" not-null="true">
-		<type name="varchar" length="4096"/>
+		<type name="varchar" length="0"/>
 	</column>
-	<constraint name="attachment_pk" type="pk-constr" table="ims.attachment">
+	<column name="attachment_name" not-null="true">
+		<type name="varchar" length="0"/>
+	</column>
+	<column name="attachment_content_type" not-null="true">
+		<type name="varchar" length="0"/>
+	</column>
+	<constraint name="attachment_pk" type="pk-constr" table="ims.attachments">
 		<columns names="attachment_id" ref-type="src-columns"/>
 	</constraint>
 
@@ -126,19 +138,19 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 	</customidxs>
 
 	<customidxs object-type="constraint">
-		<object name="comment_fk" index="1"/>
+		<object name="comments_fk" index="1"/>
 	</customidxs>
 </table>
 
-<table name="event_incident">
+<table name="event_incidents" hide-ext-attribs="true">
 	<schema name="ims"/>
 	<role name="postgres"/>
 	<appended-sql><![CDATA[INSERT INTO ims.event_incident (event_id,incident_id) VALUES (376255,6);]]></appended-sql>
-	<position x="940" y="260"/>
+	<position x="940" y="280"/>
 	<column name="event_id" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
-	<constraint name="event_incident_pk" type="pk-constr" table="ims.event_incident">
+	<constraint name="event_incident_pk" type="pk-constr" table="ims.event_incidents">
 		<columns names="event_id" ref-type="src-columns"/>
 	</constraint>
 
@@ -147,68 +159,91 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 	</customidxs>
 
 	<customidxs object-type="constraint">
-		<object name="incident_fk" index="1"/>
+		<object name="incidents_fk" index="1"/>
 	</customidxs>
 </table>
 
-<relationship name="comment_has_many_attachments" type="rel1n"
+<relationship name="comment has attachments" type="rel1n"
 	 src-col-pattern="{sc}"
 	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
 	 src-fk-pattern="{st}_fk"
 	 custom-color="#8e968d"
-	 src-table="ims.comment"
-	 dst-table="ims.attachment"
-	 src-required="true" dst-required="false"/>
+	 src-table="ims.comments"
+	 dst-table="ims.attachments"
+	 src-required="true" dst-required="false">
+	<label ref-type="name-label">
+		<position x="0" y="0"/>
+	</label>
+</relationship>
 
-<relationship name="incident_has_many_comments" type="rel1n"
+<relationship name="incident is enhanced by comments" type="rel1n"
 	 src-col-pattern="{sc}"
 	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
 	 src-fk-pattern="{st}_fk"
 	 custom-color="#ffcc29"
-	 src-table="ims.incident"
-	 dst-table="ims.comment"
-	 src-required="true" dst-required="false"/>
+	 src-table="ims.incidents"
+	 dst-table="ims.comments"
+	 src-required="true" dst-required="false">
+	<label ref-type="name-label">
+		<position x="0" y="0"/>
+	</label>
+</relationship>
 
-<relationship name="incident_has_many_event_incident" type="rel1n"
+<relationship name="Incident has relation to events" type="rel1n"
 	 src-col-pattern="{sc}"
 	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
 	 src-fk-pattern="{st}_fk"
 	 custom-color="#e1567f"
-	 src-table="ims.incident"
-	 dst-table="ims.event_incident"
+	 src-table="ims.incidents"
+	 dst-table="ims.event_incidents"
 	 src-required="true" dst-required="false"
 	 identifier="true"
-/>
+>
+	<label ref-type="dst-label">
+		<position x="-5.7325" y="5.225"/>
+	</label>
+	<label ref-type="name-label">
+		<position x="11.1631" y="-69.7607"/>
+	</label>
+</relationship>
 
-<relationship name="user_reports_incidents" type="rel1n"
+<relationship name="user reports incidents" type="rel1n"
 	 src-col-pattern="reporter_id"
 	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
 	 src-fk-pattern="{st}_fk"
 	 custom-color="#ee3d73"
-	 src-table="ims.&quot;user&quot;"
-	 dst-table="ims.incident"
-	 src-required="true" dst-required="false"/>
+	 src-table="ims.users"
+	 dst-table="ims.incidents"
+	 src-required="true" dst-required="false">
+	<label ref-type="name-label">
+		<position x="-2.8369" y="-55.7607"/>
+	</label>
+</relationship>
 
-<relationship name="user_resolves_incidents" type="rel1n"
+<relationship name="user resolves incidents" type="rel1n"
 	 src-col-pattern="resolver_id"
 	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
 	 src-fk-pattern="{st}_fk"
 	 custom-color="#44984a"
-	 src-table="ims.&quot;user&quot;"
-	 dst-table="ims.incident"
+	 src-table="ims.users"
+	 dst-table="ims.incidents"
 	 src-required="true" dst-required="false">
 	<label ref-type="name-label">
-		<position x="-0.71501" y="32.2393"/>
+		<position x="0.163103" y="-95.7607"/>
 	</label>
 </relationship>
 
-<relationship name="user_writes_comments" type="rel1n"
+<relationship name="user writes comments" type="rel1n"
 	 src-col-pattern="author_id"
 	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
 	 src-fk-pattern="{st}_fk"
 	 custom-color="#3bf142"
-	 src-table="ims.&quot;user&quot;"
-	 dst-table="ims.comment"
-	 src-required="false" dst-required="false"/>
+	 src-table="ims.users"
+	 dst-table="ims.comments"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="13.7412" y="-67.7607"/>
+	</label>
+</relationship>
 
 </dbmodel>
