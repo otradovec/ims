@@ -1,7 +1,8 @@
 import json
 import os
+import re
 
-from sqlalchemy.orm import Session, load_only
+from sqlalchemy.orm import Session
 
 from src.models import models
 from src.schemas import schemas
@@ -84,3 +85,8 @@ def create_superuser(db):
     db_user = models.User(email=secret_email, hashed_password=secret_hash, user_role=int(UserRole.superuser))
     if get_user_by_email(db, secret_email) is None:
         create_user(db, user=db_user)
+
+
+def valid_email(email) -> bool:
+    regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+    return bool(re.fullmatch(regex, email))

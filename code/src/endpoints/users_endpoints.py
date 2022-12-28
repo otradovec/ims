@@ -32,6 +32,8 @@ async def user_create(user: schemas.UserCreate, commons: BasicCommons = Depends(
     db_user = users.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+    if not users.valid_email(user.email):
+        raise HTTPException(status_code=422, detail="Bad email.")
     return users.create_user(db=db, user=user)
 
 

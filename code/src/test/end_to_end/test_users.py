@@ -105,6 +105,17 @@ def test_user_create(header, expected):
     assert response.status_code == expected, response.text
 
 
+@pytest.mark.order(after="test_crud_user")
+def test_user_create_bad_email():
+    json_create = {
+        "email": "colombiere.fr",
+        "user_role": "Superuser",
+        "hashed_password": "lfsdkjfal"
+    }
+    response = client.post(url=base_url + "users", json=json_create, headers=admin_header)
+    assert response.status_code == 422, response.text
+
+
 @pytest.mark.order(after="test_user_create")
 @pytest.mark.parametrize(*params200)
 def test_user_view(header, expected):
