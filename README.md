@@ -17,12 +17,17 @@ This is proof-of-concept for incident management system created for Flowmon Coll
 2) Run: source venv/bin/activate
 3) Run: python -m pytest src/test/ -v
 
+### Code coverage 
+To run test with code coverage execute: coverage run -m pytest src/test/ -v \
+To generate report run: coverage html
+
 ## How to make a hash
 1) Go to code directory
 2) Run: source venv/bin/activate
 3) Run: python
 4) Enter: from passlib.hash import argon2
 5) Enter: argon2.using(rounds=4).using(memory_cost=2097152).using(time_cost=1).hash("password")
+
 
 
 

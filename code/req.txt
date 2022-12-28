@@ -5,6 +5,7 @@ psycopg2-binary
 httpx #  For TestClient
 pytest
 pytest-order
+coverage
 python-multipart #  For file upload
 "python-jose[cryptography]" #  For JWT
 "passlib[argon2]" # For hashing passwords
