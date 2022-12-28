@@ -31,6 +31,12 @@ def test_connected_events_create_unauthorized():
     assert response.status_code == 401, response.text
 
 
+def test_connected_events_create_bad_event_id():
+    url = base_url + "connected-events?incident_id=1&event_id=10000000000000"
+    response = client.post(url=url, headers=token_header)
+    assert response.status_code == 422, response.text
+
+
 def test_connected_events_read_unauthorized():
     response = client.get(url=base_url + f"connected-events?incident_id=1&event_id=1")
     assert response.status_code == 401, response.text

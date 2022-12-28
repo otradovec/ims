@@ -1,5 +1,3 @@
-import pytest
-
 from src.analysis_assistant.analysis_assistant import Assistant
 
 

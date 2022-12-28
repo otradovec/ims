@@ -1,5 +1,3 @@
-import pytest
-
 from src.middle.users import valid_email
 
 
@@ -10,5 +8,4 @@ class TestUsersEmail:
         assert not valid_email("@example.com")
         assert not valid_email("example.com")
         assert not valid_email("asdf@example")
-
 

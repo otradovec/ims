@@ -8,6 +8,7 @@ from src.middle import connected_events, incidents
 from src.schemas import schemas
 from src.endpoints import dependencies
 from src.endpoints.dependencies import BasicCommons
+from src.flowmon_api import is_real_event
 
 app = APIRouter()
 base_url = dependencies.base_url
@@ -28,6 +29,9 @@ async def connected_events_create(connected_event: schemas.ConnectedEvent = Depe
                                   commons: BasicCommons = Depends(BasicCommons)):
     existing_connections_list = connected_events.connected_events_list(connected_event.incident_id,
                                                                        connected_event.event_id, commons.db)
+    if not is_real_event(connected_event.event_id):
+        raise HTTPException(status_code=422, detail="Event with event_id not existing")
+
     if len(existing_connections_list) > 0:
         raise HTTPException(status_code=400, detail="Connection already present")
 
