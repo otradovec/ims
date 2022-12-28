@@ -52,6 +52,8 @@ async def user_update(user_updated: schemas.User, commons: BasicCommons = Depend
     user_found = db.query(models.User).filter(models.User.user_id == user_updated.user_id).first()
     if user_found is None:
         raise HTTPException(status_code=404, detail="User not found")
+    if not users.valid_email(user_updated.email):
+        raise HTTPException(status_code=422, detail="Bad email.")
     users.update_user(user_updated=user_updated, user_found=user_found, db_session=db)
     return user_updated
 

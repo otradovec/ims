@@ -148,6 +148,23 @@ def test_user_update(header, expected):
     assert response.status_code == expected, response.text
 
 
+@pytest.mark.order(after="test_user_update")
+def test_user_update_bad_email():
+    email = "don@bosco.it"
+    response = client.get(base_url + f"users?skip=0&limit=100&user_search={email}", headers=admin_header)
+    json_resp = json.loads(response.text)
+    user_id = json_resp[0]["user_id"]
+
+    updated_json = {
+        "user_id": user_id,
+        "email": "notemail",
+        "user_role": "Manager",
+        "is_active": False
+    }
+    response = client.put(url=base_url + "users", json=updated_json, headers=admin_header)
+    assert response.status_code == 422, response.text
+
+
 @pytest.mark.order(after="test_crud_user")
 @pytest.mark.parametrize(*params200admin)
 def test_user_delete_not_present(header, expected):
