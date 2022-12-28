@@ -12,9 +12,9 @@ class User(Base):
     __tablename__ = "users"
 
     user_id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True, nullable=False)
     user_role = Column(SmallInteger, nullable=False)
 
 
