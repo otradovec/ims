@@ -70,6 +70,16 @@ def test_update_incident_unauth():
 
 
 @pytest.mark.order(after="test_crud_incident")
+def test_update_incident_short():
+    updated_json = {
+        "incident_id": Helper.get_incident_id(),
+        "incident_priority": "Low"
+    }
+    response = client.put(url=base_url + "incidents", json=updated_json, headers=good_header)
+    assert response.status_code == 200, response.text
+
+
+@pytest.mark.order(after="test_crud_incident")
 def test_delete_incident_not_present():
     response = client.delete(url=base_url + f"incidents/8888888888", headers=good_header)
     assert response.status_code == 200, response.text

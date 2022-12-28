@@ -40,8 +40,13 @@ class IncidentFull(IncidentCreate):
         orm_mode = True
 
 
-class IncidentUpdate(IncidentBase):
+class IncidentUpdate(BaseModel):
     incident_id: NonNegativeInt
+    incident_name: Union[str, None] = Field(example="Detected communication with blacklisted hosts")
+    incident_description: Union[str, None] = Field(default=None, example=example_incident_description)
+    incident_status: Union[IncidentStatus, None] = Field(default=None, example=IncidentStatus.reported)
+    incident_priority: Union[IncidentPriority, None] = Field(default=None, example=IncidentPriority.medium)
+    resolver_id: Union[NonNegativeInt, None]
 
 
 # Has to be BaseModel child because of optional attributes

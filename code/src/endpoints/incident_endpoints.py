@@ -44,9 +44,10 @@ async def incident_update(incident_updated: schemas.IncidentUpdate, commons: Bas
         models.Incident.incident_id == incident_updated.incident_id).first()
     if incident_found is None:
         raise HTTPException(status_code=404, detail="Incident not found")
-    resolver_found = db.query(models.User).filter(models.User.user_id == incident_updated.resolver_id).first()
-    if resolver_found is None:
-        raise HTTPException(status_code=404, detail="Resolver not found")
+    if incident_updated.resolver_id is not None:
+        resolver_found = db.query(models.User).filter(models.User.user_id == incident_updated.resolver_id).first()
+        if resolver_found is None:
+            raise HTTPException(status_code=404, detail="Resolver not found")
     incidents.update_incident(incident_updated=incident_updated, incident_found=incident_found, db_session=db)
     return incident_updated
 
