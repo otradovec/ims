@@ -20,7 +20,7 @@ base_url = dependencies.base_url
 @app.get(base_url + "users", tags=[users_tag])
 async def users_list(skip: NonNegativeInt = 0, limit: PositiveInt = 20,
                      commons: BasicCommons = Depends(BasicCommons), user_search: Union[str, None] = None):
-    db_users = users.get_users(commons.db, skip=skip, limit=limit, user_search=user_search)
+    db_users = users.get_users_without_password(commons.db, skip=skip, limit=limit, user_search=user_search)
     return db_users
 
 

@@ -23,15 +23,13 @@ def get_user_by_email(db: Session, email: str) -> models.User:
     return db.query(models.User).filter(models.User.email == email).first()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100, user_search: str = None):
+def get_users_without_password(db: Session, skip: int = 0, limit: int = 100, user_search: str = None):
     if user_search is not None:
         #  Filter like must be applied directly to new query, otherwise produces RecursiveError
-        query = db.query(models.User).options(
-            load_only(models.User.user_id, models.User.email, models.User.is_active, models.User.user_role)) \
+        query = db.query(models.User.user_id, models.User.email, models.User.is_active, models.User.user_role) \
             .filter(models.User.email.like(user_search + '%'))
     else:
-        query = db.query(models.User).options(
-            load_only(models.User.user_id, models.User.email, models.User.is_active, models.User.user_role))
+        query = db.query(models.User.user_id, models.User.email, models.User.is_active, models.User.user_role)
     query = query.offset(skip).limit(limit)
     return query.all()
 

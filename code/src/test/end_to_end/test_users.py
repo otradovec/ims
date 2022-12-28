@@ -16,6 +16,7 @@ params200admin = "header, expected, ", [("", 401), (admin_header, 200)]
 def test_read_users(header, expected):
     response = client.get(base_url + "users?skip=0&limit=100", headers=header)
     assert response.status_code == expected, response.text
+    assert "password" not in response.text
 
 
 @pytest.mark.order(after="test_read_users")
@@ -170,3 +171,5 @@ def test_user_roles(header, expected):
     assert response.status_code == expected
     if expected == 200:
         assert '"Support":1,' in response.text
+
+
