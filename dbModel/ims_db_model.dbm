@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.1" last-position="92,116" last-zoom="0.9"
+<dbmodel pgmodeler-ver="0.9.1" last-position="91,43" last-zoom="0.9"
 	 default-schema="public" default-owner="postgres">
 <database name="new_database" is-template="false" allow-conns="true">
 </database>
@@ -61,7 +61,7 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 <table name="users" hide-ext-attribs="true">
 	<schema name="ims"/>
 	<role name="postgres"/>
-	<position x="960" y="480"/>
+	<position x="980" y="480"/>
 	<column name="user_id" not-null="true" identity-type="ALWAYS">
 		<type name="integer" length="0"/>
 	</column>
@@ -69,7 +69,7 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 		<type name="smallint" length="0"/>
 	</column>
 	<column name="user_email" not-null="true">
-		<type name="varchar" length="320"/>
+		<type name="varchar" length="0"/>
 	</column>
 	<column name="is_active" not-null="true">
 		<type name="boolean" length="0"/>
@@ -146,7 +146,7 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 	<schema name="ims"/>
 	<role name="postgres"/>
 	<appended-sql><![CDATA[INSERT INTO ims.event_incident (event_id,incident_id) VALUES (376255,6);]]></appended-sql>
-	<position x="940" y="280"/>
+	<position x="980" y="260"/>
 	<column name="event_id" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
@@ -185,7 +185,7 @@ VALUES ("Infected door camera","The front door camera of building C is infected 
 	 dst-table="ims.comments"
 	 src-required="true" dst-required="false">
 	<label ref-type="name-label">
-		<position x="0" y="0"/>
+		<position x="79.8947" y="24.2393"/>
 	</label>
 </relationship>
 
