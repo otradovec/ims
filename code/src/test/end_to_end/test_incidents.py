@@ -48,6 +48,36 @@ def test_create_incident_unauth():
     assert response.status_code == 401, response.text  # Incident not created
 
 
+def test_create_incident_bad_reporter_id():
+    created_user_id = Helper.get_user_id()
+    bad_id = 10000000000000
+    json_create_bad_reporter = {
+        "incident_name": "Cryptocurrency mining",
+        "incident_description": "There is a cryptocurrency mining reported on the main server",
+        "incident_status": "Reported",
+        "incident_priority": "Medium",
+        "reporter_id": bad_id,
+        "resolver_id": created_user_id
+    }
+    response = client.post(url=base_url + "incidents", json=json_create_bad_reporter, headers=good_header)
+    assert response.status_code == 400, response.text
+
+
+def test_create_incident_bad_resolver_id():
+    created_user_id = Helper.get_user_id()
+    bad_id = 10000000000000
+    json_create_bad_reporter = {
+        "incident_name": "Cryptocurrency mining",
+        "incident_description": "There is a cryptocurrency mining reported on the main server",
+        "incident_status": "Reported",
+        "incident_priority": "Medium",
+        "reporter_id": created_user_id,
+        "resolver_id": bad_id
+    }
+    response = client.post(url=base_url + "incidents", json=json_create_bad_reporter, headers=good_header)
+    assert response.status_code == 400, response.text
+
+
 @pytest.mark.order(after="test_crud_incident")
 def test_view_incident_unauth():
     incident_id = Helper.get_incident_id()
@@ -77,6 +107,18 @@ def test_update_incident_short():
     }
     response = client.put(url=base_url + "incidents", json=updated_json, headers=good_header)
     assert response.status_code == 200, response.text
+
+
+@pytest.mark.order(after="test_crud_incident")
+def test_incident_update_bad_id():
+    header = good_header
+    too_large_incident_id = 1000000000000
+    updated_json = {
+        "incident_id": too_large_incident_id,
+        "incident_priority": "High"
+    }
+    response = client.put(url=base_url + "incidents", json=updated_json, headers=header)
+    assert response.status_code == 404, response.text
 
 
 @pytest.mark.order(after="test_crud_incident")
@@ -177,3 +219,5 @@ def test_incident_updated_after_changed_comment_attachment():
     incident_updated_at_after = json.loads(response.text)["incident_updated_at"]
 
     assert incident_updated_at_before != incident_updated_at_after
+
+
